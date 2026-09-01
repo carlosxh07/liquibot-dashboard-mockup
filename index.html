@@ -1295,16 +1295,97 @@
     };
   }
 
+  /* ---------- premium chart styling ---------- */
+  function withAlpha(col, a) {
+    col = (col || "").trim();
+    if (col.charAt(0) === "#") {
+      var h = col.slice(1);
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      var n = parseInt(h, 16);
+      return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+    }
+    var m = col.match(/rgba?\(([^)]+)\)/);
+    if (m) { var p = m[1].split(",").map(function (x) { return x.trim(); }); return "rgba(" + p[0] + "," + p[1] + "," + p[2] + "," + a + ")"; }
+    return col;
+  }
+  function vGradient(chart, col, topA, botA) {
+    var ca = chart.chartArea; if (!ca) return withAlpha(col, topA);
+    var g = chart.ctx.createLinearGradient(0, ca.top, 0, ca.bottom);
+    g.addColorStop(0, withAlpha(col, topA));
+    g.addColorStop(0.55, withAlpha(col, (topA + (botA || 0)) / 2 * 0.7));
+    g.addColorStop(1, withAlpha(col, botA || 0));
+    return g;
+  }
+
   function baseScales(C) {
     return {
-      x: { grid: { display: false }, border: { color: C.grid }, ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11.5 }, maxRotation: 0, autoSkipPadding: 14, color: C.faint } },
-      y: { grid: { color: C.grid, drawTicks: false, lineWidth: 1 }, border: { display: false },
-        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11.5 }, padding: 10, color: C.faint, maxTicksLimit: 6, callback: function (v) { return "€" + v + "k"; } } }
+      x: {
+        grid: { display: false }, border: { display: false },
+        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, maxRotation: 0, autoSkipPadding: 18, color: C.faint, padding: 8 }
+      },
+      y: {
+        position: "right",
+        grid: { color: withAlpha(C.faint, 0.14), drawTicks: false, lineWidth: 1, drawOnChartArea: true },
+        border: { display: false },
+        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, padding: 12, color: C.faint, maxTicksLimit: 5, callback: function (v) { return "€" + v + "k"; } }
+      }
     };
   }
   function tip(C) {
-    return { backgroundColor: C.ink, titleColor: C.surface, bodyColor: C.surface, padding: 11, cornerRadius: 9,
-      displayColors: false, titleFont: { family: "'IBM Plex Mono', monospace", size: 11 }, bodyFont: { family: "'IBM Plex Mono', monospace", size: 12.5 }, caretSize: 5 };
+    return {
+      backgroundColor: withAlpha(C.ink, 0.96), titleColor: withAlpha(C.surface, 0.6), bodyColor: C.surface,
+      padding: { top: 10, bottom: 10, left: 13, right: 13 }, cornerRadius: 11, borderColor: withAlpha(C.surface, 0.08), borderWidth: 1,
+      displayColors: true, boxWidth: 7, boxHeight: 7, boxPadding: 5, usePointStyle: true,
+      titleFont: { family: "'IBM Plex Mono', monospace", size: 9.5, weight: "600" }, titleMarginBottom: 7,
+      bodyFont: { family: "'IBM Plex Mono', monospace", size: 12, weight: "500" }, bodySpacing: 5, caretSize: 0, caretPadding: 12
+    };
+  }
+
+  // shared plugins: a soft glow on the emphasis line + a hover crosshair with ring-dots
+  function premiumFX(C, opts) {
+    opts = opts || {};
+    return [{
+      id: "pxGlow",
+      beforeDatasetDraw: function (chart, args) {
+        var ds = chart.data.datasets[args.index];
+        if (!ds || !ds._glow) return;
+        var ctx = chart.ctx;
+        ctx.save();
+        ctx.shadowColor = withAlpha(ds.borderColor && ds.borderColor.toString().charAt(0) === "#" ? ds.borderColor : (opts.glow || C.mint), 0.5);
+        ctx.shadowBlur = 14; ctx.shadowOffsetY = 5;
+      },
+      afterDatasetDraw: function (chart, args) {
+        if (chart.data.datasets[args.index] && chart.data.datasets[args.index]._glow) chart.ctx.restore();
+      }
+    }, {
+      id: "pxCrosshair",
+      afterDatasetsDraw: function (chart) {
+        var tt = chart.tooltip;
+        if (!tt || !tt.opacity || !tt._active || !tt._active.length) return;
+        var ca = chart.chartArea, ctx = chart.ctx, x = tt._active[0].element.x;
+        ctx.save();
+        var g = ctx.createLinearGradient(0, ca.top, 0, ca.bottom);
+        g.addColorStop(0, withAlpha(C.faint, 0));
+        g.addColorStop(0.12, withAlpha(C.faint, 0.42));
+        g.addColorStop(0.88, withAlpha(C.faint, 0.42));
+        g.addColorStop(1, withAlpha(C.faint, 0));
+        ctx.strokeStyle = g; ctx.lineWidth = 1.25;
+        ctx.beginPath(); ctx.moveTo(x, ca.top); ctx.lineTo(x, ca.bottom); ctx.stroke();
+        tt._active.forEach(function (a) {
+          var el = a.element, col = chart.data.datasets[a.datasetIndex].borderColor;
+          if (!col || col === "transparent") return;
+          ctx.beginPath(); ctx.arc(el.x, el.y, 8, 0, 6.29);
+          ctx.fillStyle = withAlpha(col, 0.16); ctx.fill();
+          ctx.beginPath(); ctx.arc(el.x, el.y, 4, 0, 6.29);
+          ctx.fillStyle = col; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = C.surface; ctx.stroke();
+        });
+        ctx.restore();
+      }
+    }];
+  }
+  function premiumAnim() {
+    return reduceMotion() ? false : { duration: 900, easing: "easeOutQuart", delay: function (c) { return c.type === "data" && c.mode === "default" ? c.dataIndex * 14 : 0; } };
   }
 
   function clean(arr) { return arr.map(function (v) { return (v == null || isNaN(v)) ? null : v; }); }
@@ -1428,26 +1509,33 @@
     try {
     charts.main = new Chart(document.getElementById("mainChart"), {
       type: "line",
-      plugins: [forecastZone, recPins],
+      plugins: [forecastZone, recPins].concat(premiumFX(C, { glow: C.mint })),
       data: { labels: LABELS, datasets: [
-        { label: "P90", data: clean(pad(r.p90)), borderColor: "transparent", pointRadius: 0, fill: "+1", backgroundColor: C.band, tension: 0.35, order: 6 },
-        { label: "P10", data: clean(pad(r.p10)), borderColor: "transparent", pointRadius: 0, fill: false, tension: 0.35, order: 6 },
-        { label: "Forecast P50", data: clean(pad(r.p50)), borderColor: C.mint, borderDash: [6, 4], borderWidth: 2.25, pointRadius: 0, tension: 0.35, order: 2 },
-        { label: "Actual", data: actual, borderColor: C.lineActual, borderWidth: 2.75, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, order: 1 },
-        { label: "Minimum reserve", data: reserve, borderColor: C.warn, borderWidth: 1.5, borderDash: [3, 3], pointRadius: 0, order: 0 }
+        { label: "P90", data: clean(pad(r.p90)), borderColor: "transparent", pointRadius: 0, pointHoverRadius: 0, fill: "+1",
+          backgroundColor: function (c) { return vGradient(c.chart, C.mint, 0.19, 0.015); }, tension: 0.42, order: 6 },
+        { label: "P10", data: clean(pad(r.p10)), borderColor: "transparent", pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.42, order: 6 },
+        { label: "Forecast P50", data: clean(pad(r.p50)), borderColor: C.mint, borderDash: [7, 5], borderWidth: 2.5, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.42, order: 2, _glow: true },
+        { label: "Actual", data: actual, borderColor: C.lineActual, borderWidth: 3, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.42, order: 1, fill: true,
+          backgroundColor: function (c) { return vGradient(c.chart, C.lineActual, 0.14, 0); }, _glow: true },
+        { label: "Minimum reserve", data: reserve, borderColor: withAlpha(C.warn, 0.7), borderWidth: 1.25, borderDash: [2, 4], pointRadius: 0, pointHoverRadius: 0, order: 0 }
       ].concat(extraSets) },
       options: {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
-        layout: { padding: { top: 94 } },
-        animation: reduceMotion() ? false : { duration: chartLively ? 950 : 320, easing: "easeOutQuart" },
+        layout: { padding: { top: 94, right: 6, left: 2 } },
+        animation: reduceMotion() ? false : { duration: chartLively ? 1000 : 340, easing: "easeOutQuart", delay: chartLively ? function (c) { return c.type === "data" && c.mode === "default" ? Math.max(0, c.dataIndex - 4) * 22 : 0; } : 0 },
         plugins: {
           legend: { display: false },
-          tooltip: Object.assign(tip(C), { callbacks: { label: function (c) {
-            if (c.parsed.y == null) return null;
-            var m = { P90: "Best case", P10: "Worst case", "Forecast P50": "Forecast", Actual: "Actual", "Minimum reserve": "Min. reserve" };
-            return (m[c.dataset.label] || c.dataset.label) + ": " + eur(c.parsed.y);
-          } } })
+          tooltip: Object.assign(tip(C), {
+            filter: function (c) { return c.parsed.y != null && c.dataset.label !== "Minimum reserve"; },
+            callbacks: {
+              title: function (items) { var i = items[0].dataIndex; return i <= 4 ? "Actual · " + LABELS[i] : "Forecast · " + LABELS[i]; },
+              label: function (c) {
+                var m = { P90: "Best case", P10: "Worst case", "Forecast P50": "Forecast", Actual: "Actual" };
+                return "  " + (m[c.dataset.label] || c.dataset.label) + "   " + eur(c.parsed.y);
+              }
+            }
+          })
         },
         scales: baseScales(C)
       }
@@ -1730,20 +1818,23 @@
     try {
     charts.risk = new Chart(document.getElementById("riskChart"), {
       type: "line",
-      plugins: [nowLine],
+      plugins: [nowLine].concat(premiumFX(C)),
       data: { labels: labels, datasets: [
-        { label: "Electricity", data: eHist, borderColor: C.crit, borderWidth: 2.4, pointRadius: 0, tension: 0.35, fill: true, backgroundColor: "rgba(214,60,54,.10)" },
-        { label: "Electricity (projected)", data: eFwd, borderColor: C.crit, borderWidth: 2.2, borderDash: [6, 4], pointRadius: 0, tension: 0.35 },
-        { label: "Gas", data: gHist, borderColor: C.warn, borderWidth: 2.4, pointRadius: 0, tension: 0.35 },
-        { label: "Gas (projected)", data: gFwd, borderColor: C.warn, borderWidth: 2.2, borderDash: [6, 4], pointRadius: 0, tension: 0.35 }
+        { label: "Electricity", data: eHist, borderColor: C.crit, borderWidth: 2.6, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.4, fill: true,
+          backgroundColor: function (c) { return vGradient(c.chart, C.crit, 0.16, 0); }, _glow: true },
+        { label: "Electricity (projected)", data: eFwd, borderColor: C.crit, borderWidth: 2.4, borderDash: [7, 5], borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.4 },
+        { label: "Gas", data: gHist, borderColor: C.warn, borderWidth: 2.6, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.4 },
+        { label: "Gas (projected)", data: gFwd, borderColor: C.warn, borderWidth: 2.4, borderDash: [7, 5], borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.4 }
       ] },
       options: {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
-        layout: { padding: { top: 18 } },
-        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: {
-          label: function (c) { return (c.parsed.y == null) ? null : c.dataset.label.replace(" (projected)", "") + ": " + c.parsed.y.toFixed(1) + " €/MWh"; }
-        } }) },
+        layout: { padding: { top: 22, right: 4 } },
+        animation: premiumAnim(),
+        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), {
+          filter: function (c) { return c.parsed.y != null; },
+          callbacks: { label: function (c) { return "  " + c.dataset.label.replace(" (projected)", "") + "   €" + c.parsed.y.toFixed(0) + " /MWh"; } }
+        }) },
         scales: (function () { var sc = baseScales(C); sc.y.ticks.callback = function (v) { return "€" + v; }; return sc; })()
       }
     });
@@ -1830,14 +1921,16 @@
     try {
     charts.inv = new Chart(document.getElementById("invChart"), {
       type: "line",
+      plugins: premiumFX(C),
       data: { labels: LABELS.slice(4), datasets: [
-        { label: "Planned (W2)", data: clean(base.p50), borderColor: C.inkSoft, borderWidth: 1.6, borderDash: [4,3], pointRadius: 0, tension: 0.35 },
-        { label: "Your plan", data: clean(r.p50), borderColor: C.accent, borderWidth: 2.4, pointRadius: 0, tension: 0.35 }
+        { label: "Planned (W2)", data: clean(base.p50), borderColor: withAlpha(C.inkSoft, 0.8), borderWidth: 1.6, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.42 },
+        { label: "Your plan", data: clean(r.p50), borderColor: C.mint, borderWidth: 2.6, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.42, fill: true, backgroundColor: function (c) { return vGradient(c.chart, C.mint, 0.13, 0); }, _glow: true }
       ] },
       options: {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
-        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return c.dataset.label + ": " + eur(c.parsed.y); } } }) },
+        layout: { padding: { top: 8, right: 4 } }, animation: premiumAnim(),
+        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return "  " + c.dataset.label + "   " + eur(c.parsed.y); } } }) },
         scales: baseScales(C)
       }
     });
@@ -1972,17 +2065,19 @@
     try {
       charts.market = new Chart(document.getElementById("marketChart"), {
         type: "line",
+        plugins: premiumFX(C),
         data: {
           labels: ["M0","M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11"],
           datasets: s.materials.map(function (m, i) {
             return { label: shortMat(m.name), data: m.series.map(function (v) { return Math.round(v / m.series[0] * 100); }),
-              borderColor: palette[i % palette.length], borderWidth: 2, pointRadius: 0, tension: 0.3 };
+              borderColor: palette[i % palette.length], borderWidth: 2.4, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.4 };
           })
         },
         options: {
           responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
-          plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 12, boxHeight: 12, font: { size: 11.5 }, color: C.inkSoft, usePointStyle: true } },
-            tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return c.dataset.label + ": index " + c.parsed.y; } } }) },
+          layout: { padding: { top: 10, right: 4 } }, animation: premiumAnim(),
+          plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 8, boxHeight: 8, padding: 16, font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, color: C.inkSoft, usePointStyle: true, pointStyle: "circle" } },
+            tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return "  " + c.dataset.label + "   index " + c.parsed.y; } } }) },
           scales: (function () { var sc = baseScales(C); sc.y.ticks.callback = function (v) { return v; }; return sc; })()
         }
       });
@@ -1997,13 +2092,15 @@
     try {
       charts.sourcing = new Chart(document.getElementById("sourcingChart"), {
         type: "line",
+        plugins: premiumFX(C),
         data: { labels: LABELS.slice(4), datasets: [
-          { label: "Without plan", data: clean(base.p50), borderColor: C.inkSoft, borderWidth: 1.6, borderDash: [4, 3], pointRadius: 0, tension: 0.35 },
-          { label: "With sourcing plan", data: clean(withPlan.p50), borderColor: C.mint, borderWidth: 2.4, pointRadius: 0, tension: 0.35 }
+          { label: "Without plan", data: clean(base.p50), borderColor: withAlpha(C.inkSoft, 0.8), borderWidth: 1.6, borderDash: [4, 4], pointRadius: 0, pointHoverRadius: 0, tension: 0.42 },
+          { label: "With sourcing plan", data: clean(withPlan.p50), borderColor: C.mint, borderWidth: 2.6, borderCapStyle: "round", pointRadius: 0, pointHoverRadius: 0, tension: 0.42, fill: true, backgroundColor: function (c) { return vGradient(c.chart, C.mint, 0.13, 0); }, _glow: true }
         ] },
         options: {
           responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
-          plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return c.dataset.label + ": " + eur(c.parsed.y); } } }) },
+          layout: { padding: { top: 8, right: 4 } }, animation: premiumAnim(),
+          plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return "  " + c.dataset.label + "   " + eur(c.parsed.y); } } }) },
           scales: baseScales(C)
         }
       });
