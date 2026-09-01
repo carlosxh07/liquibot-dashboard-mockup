@@ -1385,7 +1385,7 @@
     }];
   }
   function premiumAnim() {
-    return reduceMotion() ? false : { duration: 900, easing: "easeOutQuart", delay: function (c) { return c.type === "data" && c.mode === "default" ? c.dataIndex * 14 : 0; } };
+    return (reduceMotion() || _printing) ? false : { duration: 900, easing: "easeOutQuart", delay: function (c) { return c.type === "data" && c.mode === "default" ? c.dataIndex * 14 : 0; } };
   }
 
   function clean(arr) { return arr.map(function (v) { return (v == null || isNaN(v)) ? null : v; }); }
@@ -1523,7 +1523,7 @@
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         layout: { padding: { top: 94, right: 6, left: 2 } },
-        animation: reduceMotion() ? false : { duration: chartLively ? 1000 : 340, easing: "easeOutQuart", delay: chartLively ? function (c) { return c.type === "data" && c.mode === "default" ? Math.max(0, c.dataIndex - 4) * 22 : 0; } : 0 },
+        animation: (reduceMotion() || _printing) ? false : { duration: chartLively ? 1000 : 340, easing: "easeOutQuart", delay: chartLively ? function (c) { return c.type === "data" && c.mode === "default" ? Math.max(0, c.dataIndex - 4) * 22 : 0; } : 0 },
         plugins: {
           legend: { display: false },
           tooltip: Object.assign(tip(C), {
@@ -2534,8 +2534,19 @@
 
   /* ---------- print / export ---------- */
   function resizeAllCharts() { Object.keys(charts).forEach(function (k) { try { charts[k] && charts[k].resize(); } catch (e) {} }); }
-  window.addEventListener("beforeprint", function () { requestAnimationFrame(resizeAllCharts); });
-  window.addEventListener("afterprint", function () { requestAnimationFrame(resizeAllCharts); });
+  var _printPrevTheme = null, _printing = false;
+  window.addEventListener("beforeprint", function () {
+    _printing = true;
+    _printPrevTheme = document.documentElement.getAttribute("data-theme");
+    document.documentElement.setAttribute("data-theme", "light"); // canvas charts must be drawn in the print (light) palette
+    render();
+  });
+  window.addEventListener("afterprint", function () {
+    _printing = false;
+    if (_printPrevTheme) document.documentElement.setAttribute("data-theme", _printPrevTheme);
+    else document.documentElement.removeAttribute("data-theme");
+    render();
+  });
   document.getElementById("printBtn").addEventListener("click", function () {
     var p = COMPANIES[state.company];
     var ph = document.getElementById("printHead");
@@ -2681,14 +2692,14 @@
     b.querySelectorAll("[data-k]").forEach(function (el) {
       el.addEventListener("input", function () {
         var k = el.getAttribute("data-k");
-        intake[k] = el.tagName === "SELECT" ? el.value : (el.type === "number" ? num(el.value) : el.value);
+        intake[k] = el.tagName === "SELECT" ? el.value : (el.type === "number" ? num(el.value) : el.value.replace(/[<>]/g, ""));
         saveIntake();
       });
     });
     b.querySelectorAll("[data-invk]").forEach(function (el) {
       el.addEventListener("input", function () {
         var i = +el.getAttribute("data-idx"), k = el.getAttribute("data-invk");
-        intake.inv[i][k] = el.type === "number" ? num(el.value) : el.value;
+        intake.inv[i][k] = el.type === "number" ? num(el.value) : el.value.replace(/[<>]/g, "");
         saveIntake();
       });
     });
@@ -2766,7 +2777,7 @@
       for (var m = 0; m < 12; m++) {
         series.push(Math.round(basePrice * (m < spikeM ? (1 + 0.008 * m) : step + 0.006 * (m - spikeM))));
       }
-      return { key: "m" + i, name: String(it.nm).trim() || ("Material " + (i + 1)), unit: "unit",
+      return { key: "m" + i, name: (String(it.nm).replace(/[<>&]/g, "").trim()) || ("Material " + (i + 1)), unit: "unit",
         stock: Math.max(1, r1(num(it.cover) / 6)), price: basePrice, lead: 2 + i, series: series };
     });
     function bomSpread(frac) {
@@ -2782,7 +2793,7 @@
     ];
 
     return {
-      name: (String(t.name).trim() || "My company") + " · " + countryName(t.country),
+      name: (String(t.name).replace(/[<>&]/g, "").trim() || "My company") + " · " + countryName(t.country),
       start: start,
       reserve: Math.max(1, r1(k(t.reserve))),
       weeklyOpex: Math.max(1, r1(wOpex + wElec + wGas + wPay)),
@@ -2792,7 +2803,7 @@
       hist: [start * 0.86, start * 0.92, start * 0.89, start * 0.97].map(r1),
       deltas: deltas,
       inv: invItems.map(function (it, idx) {
-        return { nm: String(it.nm).trim() || ("Item " + (idx + 1)), tied: Math.max(1, r1(k(it.tied))), cover: num(it.cover) || 10, base: 2, ctrl: idx === 0 };
+        return { nm: (String(it.nm).replace(/[<>&]/g, "").trim()) || ("Item " + (idx + 1)), tied: Math.max(1, r1(k(it.tied))), cover: num(it.cover) || 10, base: 2, ctrl: idx === 0 };
       }),
       materials: materials,
       orders: orders
