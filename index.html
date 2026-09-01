@@ -809,11 +809,12 @@
           <div class="stack">
             <div class="card card-pad">
               <h3>Energy exposure</h3>
-              <div class="card-sub">Wholesale reference prices, rolling 12 months</div>
+              <div class="card-sub">Wholesale reference prices — 12 months history, then a 6-month projection that shifts with the stress sliders</div>
               <div class="chart-box"><canvas id="riskChart"></canvas></div>
               <div class="legend">
                 <span><span class="sw line" style="background:var(--crit)"></span>Day-ahead electricity €/MWh</span>
                 <span><span class="sw line" style="background:var(--warn)"></span>Gas TTF €/MWh</span>
+                <span><span class="sw dash" style="border-top-color:var(--ink-faint)"></span>Projected (your scenario)</span>
               </div>
             </div>
             <div class="card card-pad">
@@ -1685,36 +1686,77 @@
   }
 
   /* ---------- risk view ---------- */
+  function projSeries(hist, shockPct, driftPerMo) {
+    var base = hist[hist.length - 1], sh = shockPct / 100, out = [];
+    for (var i = 1; i <= 6; i++) out.push(base * (1 + driftPerMo * i) * (1 + sh * (i / 6)));
+    return out;
+  }
   function drawRisk() {
     var C = chartColors();
     var p = COMPANIES[state.company];
-    var mlabels = ["Sep '25","Oct","Nov","Dec","Jan '26","Feb","Mar","Apr","May","Jun","Jul","Aug"];
+    var histLabels = ["Sep '25", "Oct", "Nov", "Dec", "Jan '26", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug '26"];
+    var fwdLabels = ["Sep '26", "Oct", "Nov", "Dec", "Jan '27", "Feb"];
+    var labels = histLabels.concat(fwdLabels);
+    var eProj = projSeries(ELEC_SERIES, state.elec, 0.014);
+    var gProj = projSeries(GAS_SERIES, state.gas, 0.012);
+    var nulls11 = new Array(11).fill(null);
+    var eFwd = nulls11.concat([ELEC_SERIES[11]], eProj);
+    var gFwd = nulls11.concat([GAS_SERIES[11]], gProj);
+    var eHist = ELEC_SERIES.concat(new Array(6).fill(null));
+    var gHist = GAS_SERIES.concat(new Array(6).fill(null));
+    var eEnd = eProj[5], gEnd = gProj[5];
+
     if (charts.risk) charts.risk.destroy();
     var rBox = document.getElementById("riskChart").closest(".chart-box");
     var rErr = rBox && rBox.querySelector(".chart-err"); if (rErr) rErr.remove();
+    var nowLine = {
+      id: "riskNow",
+      afterDraw: function (chart) {
+        var xs = chart.scales.x, ca = chart.chartArea, ctx = chart.ctx;
+        if (!xs || !ca) return;
+        var x = xs.getPixelForValue(11);
+        ctx.save();
+        ctx.setLineDash([3, 3]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.faint;
+        ctx.beginPath(); ctx.moveTo(x, ca.top); ctx.lineTo(x, ca.bottom); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        var t = "NOW", tw = ctx.measureText(t).width;
+        ctx.fillStyle = C.ink; roundRect(ctx, x - tw / 2 - 6, ca.top - 2, tw + 12, 15, 4); ctx.fill();
+        ctx.fillStyle = C.surface; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(t, x, ca.top + 6.5);
+        ctx.restore();
+      }
+    };
     try {
     charts.risk = new Chart(document.getElementById("riskChart"), {
       type: "line",
-      data: { labels: mlabels, datasets: [
-        { label: "Electricity", data: ELEC_SERIES, borderColor: C.crit, borderWidth: 2.4, pointRadius: 0, tension: 0.35, fill: true, backgroundColor: "rgba(214,60,54,.10)" },
-        { label: "Gas", data: GAS_SERIES, borderColor: C.warn, borderWidth: 2.4, pointRadius: 0, tension: 0.35 }
+      plugins: [nowLine],
+      data: { labels: labels, datasets: [
+        { label: "Electricity", data: eHist, borderColor: C.crit, borderWidth: 2.4, pointRadius: 0, tension: 0.35, fill: true, backgroundColor: "rgba(214,60,54,.10)" },
+        { label: "Electricity (projected)", data: eFwd, borderColor: C.crit, borderWidth: 2.2, borderDash: [6, 4], pointRadius: 0, tension: 0.35 },
+        { label: "Gas", data: gHist, borderColor: C.warn, borderWidth: 2.4, pointRadius: 0, tension: 0.35 },
+        { label: "Gas (projected)", data: gFwd, borderColor: C.warn, borderWidth: 2.2, borderDash: [6, 4], pointRadius: 0, tension: 0.35 }
       ] },
       options: {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
-        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return c.dataset.label + ": " + c.parsed.y.toFixed(1) + " €/MWh"; } } }) },
-        scales: baseScales(C)
+        layout: { padding: { top: 18 } },
+        plugins: { legend: { display: false }, tooltip: Object.assign(tip(C), { callbacks: {
+          label: function (c) { return (c.parsed.y == null) ? null : c.dataset.label.replace(" (projected)", "") + ": " + c.parsed.y.toFixed(1) + " €/MWh"; }
+        } }) },
+        scales: (function () { var sc = baseScales(C); sc.y.ticks.callback = function (v) { return "€" + v; }; return sc; })()
       }
     });
     requestAnimationFrame(function () { if (charts.risk) charts.risk.resize(); });
     } catch (e) { showChartError("riskChart", e); }
 
-    var elecVar = (p.elecWeekly * Math.max(state.elec, 25) / 100 * 12).toFixed(1);
+    var elecVar = (p.elecWeekly * Math.max(Math.abs(state.elec), 25) / 100 * 12).toFixed(1);
+    var eDelta = ((eEnd / 95.21 - 1) * 100);
     document.getElementById("riskList").innerHTML =
-      riskCard("Wholesale electricity (day-ahead)", "crit",
-        "Q2 2026 average <b>95.21 €/MWh</b>, up <b>36.5%</b> year-on-year. At the current load an unhedged +25% move adds about <b>€" + elecVar + "k</b> of cost across the forecast window.")
-    + riskCard("Natural gas (process heat)", "warn",
-        "Wholesale up <b>~25%</b> year-on-year in Q2 2026. Modelled into the mid-horizon supplier invoices.")
+      riskCard("Wholesale electricity (day-ahead)", state.elec > 10 ? "crit" : "warn",
+        "Q2 2026 average <b>95.21 €/MWh</b>, up <b>36.5%</b> YoY. Your scenario projects <b>" + eEnd.toFixed(0) + " €/MWh</b> by Feb 2027 (" + (eDelta >= 0 ? "+" : "") + eDelta.toFixed(0) + "% vs. now) — about <b>€" + elecVar + "k</b> of forecast-window cost on an unhedged load.")
+    + riskCard("Natural gas (process heat)", state.gas > 10 ? "crit" : "warn",
+        "Wholesale up <b>~25%</b> YoY in Q2 2026. Scenario projects <b>" + gEnd.toFixed(0) + " €/MWh</b> by Feb 2027. Modelled into the mid-horizon supplier invoices.")
     + riskCard("Grid price volatility", "mut",
         "<b>409</b> negative-price hours on the German market so far in 2026 (as low as −500 €/MWh). Upside for flexible loads — LiquiBot flags shift-timing opportunities.")
     + riskCard("Industrial tariff drift", "warn",
@@ -1941,7 +1983,7 @@
           responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
           plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 12, boxHeight: 12, font: { size: 11.5 }, color: C.inkSoft, usePointStyle: true } },
             tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return c.dataset.label + ": index " + c.parsed.y; } } }) },
-          scales: baseScales(C)
+          scales: (function () { var sc = baseScales(C); sc.y.ticks.callback = function (v) { return v; }; return sc; })()
         }
       });
       requestAnimationFrame(function () { if (charts.market) charts.market.resize(); });
