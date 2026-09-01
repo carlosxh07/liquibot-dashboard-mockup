@@ -225,7 +225,7 @@
 
   /* ---------- charts ---------- */
   .chart-box { position: relative; height: 310px; margin-top: 16px; }
-  .chart-box.tall { height: 380px; }
+  .chart-box.tall { height: 424px; }
   .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .sw { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
@@ -532,17 +532,42 @@
   .tour-nav .btn { padding: 7px 13px; }
 
   /* ---------- print ---------- */
+  @page { margin: 14mm; }
   @media print {
-    .topbar, .sidenav, .chat-launcher, .rail, .tour, .splash, #ob, .nav-badge, .card-head-row select, #backtestLine { display: none !important; }
-    body, main, .app { background: #fff !important; }
-    .app { display: block !important; }
-    main { padding: 0 !important; }
+    /* force a clean light palette regardless of theme */
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+      --ground: #fff; --surface: #fff; --surface-2: #fff; --surface-inset: #eef1f5;
+      --ink: #0A1B3D; --ink-soft: #3d4a63; --ink-faint: #6b7688;
+      --border: #cfd6e2; --border-strong: #b7c0cf; --band: rgba(20,120,80,.12);
+      --line-actual: #0A1B3D; --forecast-tint: rgba(0,0,0,.03);
+      --pos: #10794f; --warn: #a9640a; --crit: #c23a33;
+      --accent: #0A1B3D; --mint: #10794f;
+    }
+    .topbar, .sidenav, .chat-launcher, .tour, .splash, #ob,
+    .nav-badge, .card-head-row select, #backtestLine,
+    aside.rail, .rail, .presets, .rail-actions, .saved-block,
+    #tourBtn, #printBtn, #editBtn, #themeBtn { display: none !important; }
+    body { background: #fff !important; color: #0A1B3D !important; font-size: 11pt; }
+    .app { display: block !important; background: #fff !important; }
+    .shell { display: block !important; }
+    main { display: block !important; padding: 0 !important; background: #fff !important; }
+    main > section { max-width: 100% !important; margin: 0 !important; }
     main > section[hidden] { display: none !important; }
-    main > section { max-width: 100% !important; }
-    .content-grid { grid-template-columns: 1fr !important; }
-    .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
-    .kpi { box-shadow: none !important; }
-    .print-head { display: block !important; margin-bottom: 16px; font-size: 12px; }
+    .view-head { border-bottom: 1px solid #cfd6e2; padding-bottom: 8px; margin-bottom: 14px; }
+    .view-head h1 { font-size: 20pt; }
+    .content-grid { display: block !important; }
+    .stack { display: block !important; }
+    .stack > .card, .content-grid > .stack > .card { margin-bottom: 12px; }
+    .card { box-shadow: none !important; border: 1px solid #cfd6e2 !important; break-inside: avoid; page-break-inside: avoid; }
+    .kpi { box-shadow: none !important; border: 1px solid #cfd6e2 !important; break-inside: avoid; }
+    .kpi-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    .kpi:hover { transform: none !important; }
+    .chart-box, .chart-box.tall { height: 320px !important; break-inside: avoid; }
+    .chart-box canvas { max-width: 100% !important; }
+    .action .btn, .recv-row .link-btn, .callout { break-inside: avoid; }
+    a[href]::after { content: ""; }
+    .print-head { display: block !important; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #0A1B3D; font-size: 10pt; color: #3d4a63; }
+    .print-head strong { color: #0A1B3D; font-size: 12pt; font-family: "Bricolage Grotesque", sans-serif; }
   }
   .print-head { display: none; }
 
@@ -1317,6 +1342,60 @@
       return { label: e.label, data: clean(pad(e.data)), borderColor: e.color, borderWidth: 1.6, borderDash: [2, 3], pointRadius: 0, tension: 0.35, order: 3 };
     });
     if (charts.main) charts.main.destroy();
+
+    // recommendation annotations on the forecast line — max 3, most relevant first
+    var annos = [];
+    var fin = financingPlan(r, p);
+    annos.push({
+      wk: r.lowW, sev: r.low < p.reserve ? "crit" : "warn",
+      txt: r.low < p.reserve ? "Low point" : "Tightest week",
+      sub: r.low < p.reserve ? (fin ? "draw credit line" : "cut spend / chase invoices")
+        : (r.conf < 75 ? "hold buffer" : "on plan")
+    });
+    if (state.sourcing) {
+      try { var _sc = computeSourcing(); var _ba = _sc.recs.filter(function (x) { return x.qty > 0 && x.buyAhead; })[0]; if (_ba) annos.push({ wk: Math.max(1, _ba.arriveWeek || 1), sev: "pos", txt: "Buy-ahead in", sub: shortMat(_ba.name) }); } catch (e) {}
+    }
+    var rw = Number(state.steel);
+    if (rw !== r.lowW && !annos.some(function (a) { return a.wk === rw; })) annos.push({ wk: rw, sev: "mut", txt: "Stock reorder", sub: rw <= r.lowW ? "defer past dip" : "clears the dip" });
+    [4, 9].forEach(function (tw) { if (tw !== r.lowW && !annos.some(function (a) { return Math.abs(a.wk - tw) < 2; })) annos.push({ wk: tw, sev: "mut", txt: "Tax / VAT due", sub: "reserve cash" }); });
+    var sevRank = { crit: 0, warn: 1, pos: 2, mut: 3 };
+    annos = annos.filter(function (a) { return a.wk >= 1 && a.wk <= 12; })
+      .sort(function (a, b) { return sevRank[a.sev] - sevRank[b.sev]; }).slice(0, 3)
+      .sort(function (a, b) { return a.wk - b.wk; });
+
+    var recPins = {
+      id: "recPins",
+      afterDatasetsDraw: function (chart) {
+        var meta = chart.getDatasetMeta(2), ca = chart.chartArea, ctx = chart.ctx;
+        if (!meta || !meta.data || !ca || !annos.length) return;
+        ctx.save();
+        ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        var laneEnds = []; // right edge x per lane
+        annos.forEach(function (a) {
+          var pt = meta.data[4 + a.wk]; if (!pt) return;
+          var w = Math.max(ctx.measureText(a.txt).width, ctx.measureText("→ " + a.sub).width) + 14;
+          var bh = 26;
+          var x0 = Math.min(ca.right - w - 1, Math.max(ca.left + 1, pt.x - w / 2));
+          var lane = 0;
+          while (laneEnds[lane] != null && x0 < laneEnds[lane] + 6) lane++;
+          laneEnds[lane] = x0 + w;
+          var ly = 3 + lane * (bh + 4); // stacked in the top padding band, above the plot
+          var col = a.sev === "crit" ? C.crit : a.sev === "warn" ? C.warn : a.sev === "pos" ? C.mint : C.faint;
+          ctx.strokeStyle = col; ctx.lineWidth = 1.25; ctx.setLineDash([2, 2]);
+          ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt.x, ly + bh); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle = col; ctx.beginPath(); ctx.arc(pt.x, pt.y, 3.5, 0, 6.29); ctx.fill();
+          roundRect(ctx, x0, ly, w, bh, 5);
+          ctx.fillStyle = C.surface; ctx.fill(); ctx.stroke();
+          ctx.textBaseline = "top"; ctx.textAlign = "left";
+          ctx.fillStyle = col; ctx.fillText(a.txt, x0 + 7, ly + 3);
+          ctx.fillStyle = C.inkSoft; ctx.font = "9px 'IBM Plex Mono', monospace";
+          ctx.fillText("→ " + a.sub, x0 + 7, ly + 14);
+          ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        });
+        ctx.restore();
+      }
+    };
+
     var forecastZone = {
       id: "forecastZone",
       beforeDatasetsDraw: function (chart) {
@@ -1348,7 +1427,7 @@
     try {
     charts.main = new Chart(document.getElementById("mainChart"), {
       type: "line",
-      plugins: [forecastZone],
+      plugins: [forecastZone, recPins],
       data: { labels: LABELS, datasets: [
         { label: "P90", data: clean(pad(r.p90)), borderColor: "transparent", pointRadius: 0, fill: "+1", backgroundColor: C.band, tension: 0.35, order: 6 },
         { label: "P10", data: clean(pad(r.p10)), borderColor: "transparent", pointRadius: 0, fill: false, tension: 0.35, order: 6 },
@@ -1359,7 +1438,7 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
-        layout: { padding: { top: 16 } },
+        layout: { padding: { top: 94 } },
         animation: reduceMotion() ? false : { duration: chartLively ? 950 : 320, easing: "easeOutQuart" },
         plugins: {
           legend: { display: false },
@@ -2315,14 +2394,18 @@
   })();
 
   /* ---------- print / export ---------- */
+  function resizeAllCharts() { Object.keys(charts).forEach(function (k) { try { charts[k] && charts[k].resize(); } catch (e) {} }); }
+  window.addEventListener("beforeprint", function () { requestAnimationFrame(resizeAllCharts); });
+  window.addEventListener("afterprint", function () { requestAnimationFrame(resizeAllCharts); });
   document.getElementById("printBtn").addEventListener("click", function () {
     var p = COMPANIES[state.company];
     var ph = document.getElementById("printHead");
     if (!ph) { ph = document.createElement("div"); ph.id = "printHead"; ph.className = "print-head"; document.querySelector("main").prepend(ph); }
-    ph.innerHTML = "<strong>LiquiBot forecast</strong> — " + p.name + " · generated "
-      + new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    var views = { forecast: "Liquidity forecast", actions: "Actions", risk: "Risk radar", inventory: "Inventory", sourcing: "Orders & sourcing", feeds: "Data feeds" };
+    ph.innerHTML = "<strong>LiquiBot · " + (views[view] || "Report") + "</strong><br>" + p.name
+      + " · generated " + new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
       + " · illustrative data, not financial advice";
-    window.print();
+    setTimeout(function () { window.print(); }, 60);
   });
 
   /* ---------- guided tour ---------- */
