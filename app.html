@@ -44,6 +44,8 @@
     --pos: #159A5C; --pos-wash: rgba(21,154,92,.13);
     --warn: #C07A12; --warn-wash: rgba(192,122,18,.14);
     --crit: #DE4B44; --crit-wash: rgba(222,75,68,.13);
+    --info: #2568C7; --info-wash: rgba(37,104,199,.13);
+    --note: #8447C9; --note-wash: rgba(132,71,201,.13);
     --band: rgba(100,214,147,.16);
     --line-actual: #001748;
     --forecast-tint: rgba(2,17,51,.028);
@@ -74,6 +76,8 @@
       --pos: #59CE93; --pos-wash: rgba(89,206,147,.16);
       --warn: #E0A44B; --warn-wash: rgba(224,164,75,.16);
       --crit: #F0736D; --crit-wash: rgba(240,115,109,.16);
+      --info: #5B9EF3; --info-wash: rgba(91,158,243,.16);
+      --note: #B48BE8; --note-wash: rgba(180,139,232,.16);
       --band: rgba(100,214,147,.20);
       --line-actual: #9CC6FF;
       --forecast-tint: rgba(255,255,255,.022);
@@ -91,6 +95,8 @@
     --pos: #59CE93; --pos-wash: rgba(89,206,147,.16);
     --warn: #E0A44B; --warn-wash: rgba(224,164,75,.16);
     --crit: #F0736D; --crit-wash: rgba(240,115,109,.16);
+    --info: #5B9EF3; --info-wash: rgba(91,158,243,.16);
+    --note: #B48BE8; --note-wash: rgba(180,139,232,.16);
     --band: rgba(100,214,147,.20);
     --line-actual: #9CC6FF;
     --forecast-tint: rgba(255,255,255,.022);
@@ -111,7 +117,7 @@
     text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4 { font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif; margin: 0; letter-spacing: -0.02em; line-height: 1.12; font-weight: 700; }
-  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .mono { font-family: "Hanken Grotesk", sans-serif; font-variant-numeric: tabular-nums; }
   button { font-family: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--mint-bright); outline-offset: 2px; border-radius: 4px; }
 
@@ -161,7 +167,7 @@
     background: var(--chrome); border-right: 1px solid var(--chrome-line);
     padding: 18px 14px; display: flex; flex-direction: column; gap: 2px;
   }
-  .nav-group { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--chrome-soft); opacity: .75; padding: 16px 12px 7px; }
+  .nav-group { font-family: "Hanken Grotesk", sans-serif; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--chrome-soft); opacity: .75; padding: 16px 12px 7px; }
   .nav-group:first-child { padding-top: 4px; }
   .nav-item {
     position: relative;
@@ -175,7 +181,7 @@
   .nav-item.active { background: var(--chrome-active-bg); color: var(--chrome-active); font-weight: 600; }
   .nav-item.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--brand-mint); }
   .sidenav .nav-spacer { flex: 1; }
-  .sidenav .nav-foot { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--chrome-soft); opacity: .6; padding: 12px; border-top: 1px solid var(--chrome-line); }
+  .sidenav .nav-foot { font-family: "Hanken Grotesk", sans-serif; font-size: 10px; color: var(--chrome-soft); opacity: .6; padding: 12px; border-top: 1px solid var(--chrome-line); }
 
   /* ---------- main canvas ---------- */
   main { padding: 30px 34px 48px; overflow-x: hidden; background: var(--ground); }
@@ -210,7 +216,7 @@
   .kpi-orb.lg { right: -28px; top: -22px; width: 66px; height: 66px; }
   .kpi-orb.sm { right: -6px; top: -2px; width: 30px; height: 30px; }
   .kpi-main { position: relative; z-index: 1; min-width: 0; }
-  .kpi .k { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
+  .kpi .k { font-family: "Hanken Grotesk", sans-serif; font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
   .kpi .v { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 35px; letter-spacing: -0.035em; margin: 12px 0 7px; font-variant-numeric: tabular-nums; transition: color .3s; line-height: 1; }
   .kpi .d { font-size: 13px; color: var(--ink-soft); }
   .kpi-bar { display: block; width: 38px; height: 3px; border-radius: 999px; margin-top: 13px; background: var(--edge, var(--border-strong)); opacity: .5; }
@@ -244,7 +250,7 @@
   .ctrl:first-of-type { margin-top: 12px; }
   .ctrl label { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 600; margin-bottom: 11px; color: var(--ink-soft); }
   .ctrl label .val {
-    font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600;
+    font-family: "Hanken Grotesk", sans-serif; font-size: 13px; font-weight: 600;
     color: var(--accent); background: var(--accent-wash);
     padding: 3px 10px; border-radius: 999px; letter-spacing: -0.01em;
   }
@@ -271,7 +277,7 @@
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: 0 6px 16px -8px var(--accent); }
   .btn.primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
   .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
-  .presets::before { content: "Quick scenarios"; width: 100%; font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
+  .presets::before { content: "Quick scenarios"; width: 100%; font-family: "Hanken Grotesk", sans-serif; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
   .chip { font-size: 12px; font-weight: 500; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-soft); transition: color .14s, border-color .14s, background .14s; }
   .chip:hover { color: var(--ink); border-color: var(--mint-bright); background: var(--mint-wash); }
 
@@ -279,7 +285,7 @@
   .ctrl-group:last-of-type { border-bottom: 0; padding-bottom: 4px; }
 
   /* ---------- pills ---------- */
-  .pill { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  .pill { font-family: "Hanken Grotesk", sans-serif; font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
   .pill.pos { background: var(--pos-wash); color: var(--pos); }
   .pill.warn { background: var(--warn-wash); color: var(--warn); }
   .pill.crit { background: var(--crit-wash); color: var(--crit); }
@@ -291,7 +297,7 @@
   .driver .track { position: relative; height: 8px; background: var(--surface-inset); border-radius: 999px; overflow: hidden; }
   .driver .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border-strong); }
   .driver .fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
-  .driver .amt { font-family: "IBM Plex Mono", monospace; text-align: right; font-size: 12.5px; font-weight: 600; }
+  .driver .amt { font-family: "Hanken Grotesk", sans-serif; text-align: right; font-size: 12.5px; font-weight: 600; }
 
   /* ---------- risk cards ---------- */
   .risk { border: 1px solid var(--border); border-radius: var(--r-md); padding: 15px; transition: border-color .15s, box-shadow .15s; }
@@ -306,15 +312,15 @@
   .inv:last-child { border-bottom: 0; }
   .inv .nm { font-weight: 600; }
   .inv .meta { font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
-  .inv .cover { font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+  .inv .cover { font-family: "Hanken Grotesk", sans-serif; font-size: 13px; }
   .inv .cover .track { height: 4px; border-radius: 999px; background: var(--surface-inset); overflow: hidden; margin-top: 6px; }
   .inv .cover .track i { display: block; height: 100%; border-radius: 999px; }
-  .inv-head { display: grid; grid-template-columns: 1fr 120px 92px 120px; gap: 12px; font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: 9px; border-bottom: 1px solid var(--border); }
+  .inv-head { display: grid; grid-template-columns: 1fr 120px 92px 120px; gap: 12px; font-family: "Hanken Grotesk", sans-serif; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: 9px; border-bottom: 1px solid var(--border); }
   @media (max-width: 720px) { .inv, .inv-head { grid-template-columns: 1fr 88px; } .inv .cover, .inv-head span:nth-child(2) { display: none; } }
 
   /* ---------- callout ---------- */
   .callout { margin-top: 16px; padding: 15px 17px; border-radius: var(--r-md); background: var(--mint-wash); border: 1px solid color-mix(in srgb, var(--mint-bright) 30%, var(--border)); font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
-  .callout b { font-family: "IBM Plex Mono", monospace; color: var(--ink); }
+  .callout b { font-family: "Hanken Grotesk", sans-serif; color: var(--ink); }
 
   /* ---------- feeds ---------- */
   .feed { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
@@ -327,9 +333,9 @@
   .ord:last-child { border-bottom: 0; }
   .ord-t { font-size: 14px; font-weight: 600; }
   .ord-s { font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
-  .ord-mix { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); margin-top: 6px; }
+  .ord-mix { font-family: "Hanken Grotesk", sans-serif; font-size: 11.5px; color: var(--ink-soft); margin-top: 6px; }
   .ord-r { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 13px; }
-  .ord-r .mono { font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  .ord-r .mono { font-family: "Hanken Grotesk", sans-serif; font-weight: 600; }
   .rec { border: 1px solid var(--border); border-radius: var(--r-md); padding: 13px 14px; margin-bottom: 10px; }
   .rec:last-of-type { margin-bottom: 0; }
   .rec-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -343,12 +349,38 @@
   .ob-top { height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: var(--chrome); color: var(--chrome-ink); border-bottom: 1px solid var(--chrome-line); box-shadow: 0 1px 0 rgba(100,214,147,.22); position: sticky; top: 0; }
   .ob-top .link-btn { color: var(--chrome-soft); }
   .ob-top .link-btn:hover { color: var(--chrome-ink); }
-  .ob-wrap { max-width: 560px; margin: 0 auto; padding: 40px 24px 100px; }
+  .ob-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 100px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+  .ob-guide { position: sticky; top: 100px; display: flex; flex-direction: column; align-items: center; }
+  .ob-guide img { width: 128px; height: auto; margin-bottom: 16px; filter: drop-shadow(0 10px 18px rgba(0,0,0,.3)); animation: mascotBob 3.4s ease-in-out infinite; }
+  .ob-guide-bubble {
+    position: relative; width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-top: 2px solid var(--brand-mint); border-radius: 16px; padding: 15px 17px;
+    box-shadow: var(--shadow-md); text-align: left;
+  }
+  .ob-guide-bubble::before {
+    content: ""; position: absolute; top: -7px; left: 50%; margin-left: -7px; width: 14px; height: 14px;
+    background: var(--surface); border-left: 1px solid var(--border); border-top: 1px solid var(--border);
+    transform: rotate(45deg); border-radius: 3px 0 0 0;
+  }
+  .ob-guide-eyebrow { font-family: "Hanken Grotesk", sans-serif; font-weight: 800; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--brand-mint); margin-bottom: 6px; }
+  .ob-guide-title { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .ob-guide-body { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+  .ob-guide-body b { color: var(--ink); }
+  .ob-guide-bubble.fade { animation: guideFade .35s cubic-bezier(.3,1.3,.4,1) both; }
+  @keyframes guideFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .ob-guide-bubble.fade { animation: none; } }
+  .ob-form { min-width: 0; }
+  @media (max-width: 720px) {
+    .ob-wrap { grid-template-columns: 1fr; gap: 24px; }
+    .ob-guide { position: static; flex-direction: row; align-items: flex-start; text-align: left; gap: 14px; }
+    .ob-guide img { width: 74px; margin-bottom: 0; flex-shrink: 0; }
+    .ob-guide-bubble::before { top: 18px; left: -7px; margin-left: 0; transform: rotate(-45deg); }
+  }
   .stepper { display: flex; gap: 6px; margin-bottom: 14px; }
   .stepper i { height: 4px; flex: 1; border-radius: 999px; background: var(--border-strong); transition: background .35s, opacity .35s; }
   .stepper i.done { background: var(--mint); }
   .stepper i.now { background: var(--mint); opacity: .4; }
-  .ob-count { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 26px; }
+  .ob-count { font-family: "Hanken Grotesk", sans-serif; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 26px; }
   .ob h2 { font-size: 30px; letter-spacing: -0.03em; margin-bottom: 8px; text-wrap: balance; }
   .ob .lead { color: var(--ink-soft); font-size: 14.5px; margin-bottom: 28px; line-height: 1.6; }
   .field { margin-bottom: 17px; }
@@ -359,7 +391,7 @@
   .input { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-sm); padding: 0 12px; transition: border-color .15s, box-shadow .15s; }
   .input:focus-within { border-color: var(--mint-bright); box-shadow: 0 0 0 3px var(--mint-wash); }
   .field.err .input { border-color: var(--crit); }
-  .input .pfx { color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  .input .pfx { color: var(--ink-faint); font-family: "Hanken Grotesk", sans-serif; font-size: 12px; }
   .input input, .input select { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font-family: inherit; font-size: 15px; padding: 12px 0; outline: none; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .inv-row { border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px; margin-bottom: 12px; background: var(--surface-2); }
@@ -375,7 +407,7 @@
   .sw-toggle input:checked + span { background: var(--mint); }
   .sw-toggle input:checked + span::before { transform: translateX(17px); }
   .preview-card { background: var(--mint-wash); border: 1px solid color-mix(in srgb, var(--mint-bright) 30%, var(--border)); border-radius: var(--r-md); padding: 18px; margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
-  .preview-card .pv .k { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .preview-card .pv .k { font-family: "Hanken Grotesk", sans-serif; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
   .preview-card .pv .v { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; margin-top: 4px; }
   .preview-note { font-size: 12px; color: var(--ink-soft); margin-top: 14px; line-height: 1.55; }
   .ob-actions { display: flex; gap: 12px; margin-top: 32px; }
@@ -397,26 +429,65 @@
   @media (prefers-reduced-motion: reduce) { .chart-alert .pulse { animation: none; opacity: .22; } }
 
   /* ---------- AI assistant ---------- */
-  .chat-launcher { position: fixed; right: 24px; bottom: 24px; z-index: 90; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
-  .chat-fab {
-    position: relative; width: 58px; height: 58px; border-radius: 20px; border: 0; cursor: pointer;
-    background: linear-gradient(145deg, var(--brand-mint), var(--brand-navy));
-    box-shadow: 0 8px 24px -6px rgba(100,214,147,.5), var(--shadow-md);
-    display: grid; place-items: center; color: #fff; transition: transform .16s ease, border-radius .2s ease;
+  .chat-launcher { position: fixed; left: 60px; bottom: 56px; z-index: 90; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; touch-action: none; }
+  .chat-launcher.pinned { transform: none; }
+  .chat-launcher.dragging { transition: none !important; }
+  .chat-launcher.dragging .chat-fab, .chat-launcher.dragging .chat-head { cursor: grabbing; }
+  .chat-launcher.traveling { transition: left .6s cubic-bezier(.3,.85,.25,1.05), top .6s cubic-bezier(.3,.85,.25,1.05); }
+  .chat-bubble {
+    /* absolutely positioned relative to .chat-launcher and OUT of its flex flow on purpose —
+       its width/height must never influence where the mascot (.chat-fab) sits. */
+    position: absolute; left: 50%; bottom: 100%; margin-bottom: 14px;
+    width: max-content; max-width: 250px; min-height: 20px; padding: 14px 16px; border-radius: 18px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px);
+    border: 1px solid var(--border); border-top: 2px solid var(--brand-mint); box-shadow: var(--shadow-pop);
+    font-family: "Hanken Grotesk", sans-serif; font-size: 13px; line-height: 1.5; color: var(--ink);
+    cursor: pointer; opacity: 0; transform: translateX(-50%) translateY(10px) scale(.92);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.3,1.4,.4,1);
   }
-  .chat-fab::after { content: ""; position: absolute; inset: -5px; border-radius: 24px; border: 1.5px solid var(--brand-mint); opacity: .35; animation: livepulse 3s ease-out infinite; }
-  .chat-fab:hover { transform: translateY(-3px); border-radius: 24px; }
-  .chat-fab svg { width: 25px; height: 25px; position: relative; z-index: 1; }
-  .chat-fab .chat-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--crit); border: 2.5px solid var(--ground); z-index: 2; }
-  @media (prefers-reduced-motion: reduce) { .chat-fab::after, .topbar .status .live::after { animation: none; } }
+  .chat-bubble.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  .chat-bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -7px; width: 14px; height: 14px;
+    margin-left: -7px; background: var(--surface); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    transform: rotate(45deg); border-radius: 0 0 3px 0;
+  }
+  .chat-bubble b { color: var(--accent); font-weight: 700; }
+  .chat-bubble-head { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: -0.01em; color: var(--accent); min-height: 17px; }
+  .chat-caret { display: inline-block; width: 2px; height: 12px; margin-left: 2px; background: var(--accent); vertical-align: -2px; animation: caretBlink .8s steps(1) infinite; }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+  .chat-bubble-body { opacity: 0; transform: translateY(-3px); transition: opacity .3s ease, transform .3s ease; }
+  .chat-bubble-body.show { opacity: 1; transform: translateY(0); }
+  .chat-bubble-fact { margin: 7px 0; }
+  .chat-bubble-do { padding-top: 7px; border-top: 1px dashed var(--border); color: var(--ink-soft); font-size: 12.5px; }
+  .chat-bubble-hint { display: block; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink-faint); }
+  @media (prefers-reduced-motion: reduce) { .chat-bubble, .chat-bubble-body, .chat-caret, .chat-launcher.traveling { transition: none; animation: none; } }
+  .chat-action { display: block; width: 100%; text-align: left; margin-top: 10px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--accent); font-family: "Hanken Grotesk", sans-serif; font-weight: 700; font-size: 12.5px; cursor: pointer; transition: background .15s, border-color .15s, transform .12s; }
+  .chat-action:hover { background: var(--accent-wash); border-color: var(--accent); transform: translateX(2px); }
+  .chat-action::after { content: " →"; }
+  .chat-fab {
+    position: relative; width: 128px; height: 150px; border-radius: 0; border: 0; padding: 0; cursor: grab;
+    background: transparent; box-shadow: none;
+    display: grid; place-items: center; color: #fff; transition: transform .16s ease;
+  }
+  .chat-fab::after { content: ""; position: absolute; left: 50%; bottom: 8px; width: 62px; height: 16px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(0,23,72,.28), transparent 72%); z-index: 0; animation: livepulse 3s ease-out infinite; }
+  .chat-fab:hover { transform: translateY(-3px) scale(1.04); }
+  .chat-fab:active { cursor: grabbing; }
+  .chat-mascot-img { position: relative; z-index: 1; width: 114px; height: 133px; display: block; filter: drop-shadow(0 8px 16px rgba(0,23,72,.3)); animation: mascotBob 3.2s ease-in-out infinite; }
+  .chat-fab .chat-badge { position: absolute; top: 6px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--crit); border: 2.5px solid var(--ground); z-index: 2; }
+  @keyframes mascotBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  .chat-launcher.has-critical .chat-mascot-img { animation: mascotPulse 1.3s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(100,214,147,.55)); }
+  @keyframes mascotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+  @media (prefers-reduced-motion: reduce) { .chat-fab::after, .topbar .status .live::after, .chat-mascot-img, .chat-launcher.has-critical .chat-mascot-img { animation: none; } }
   .chat-panel {
     width: min(370px, calc(100vw - 40px)); height: min(520px, calc(100vh - 120px));
     background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-pop);
     display: flex; flex-direction: column; overflow: hidden;
   }
-  .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 15px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--surface-2), var(--surface)); }
+  .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 15px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--surface-2), var(--surface)); cursor: grab; }
+  .chat-head:active { cursor: grabbing; }
   .chat-head-id { display: flex; align-items: center; gap: 11px; }
-  .chat-avatar { width: 34px; height: 34px; border-radius: 11px; background: linear-gradient(145deg, var(--brand-mint), var(--brand-navy)); display: grid; place-items: center; font-size: 17px; box-shadow: 0 4px 12px -4px rgba(100,214,147,.5); }
+  .chat-avatar { width: 38px; height: 38px; display: grid; place-items: center; overflow: visible; }
+  .chat-avatar img { width: 44px; height: auto; display: block; filter: drop-shadow(0 3px 6px rgba(0,23,72,.25)); }
   .chat-title { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 15px; letter-spacing: -0.02em; }
   .chat-sub { font-size: 11px; color: var(--ink-faint); }
   .chat-head .icon-btn { background: var(--surface-2); border-color: var(--border); color: var(--ink-soft); }
@@ -442,12 +513,13 @@
   .chat-send:hover { background: var(--accent-deep); }
   .chat-send svg { width: 16px; height: 16px; }
   .chat-disclaimer { font-size: 10px; color: var(--ink-faint); text-align: center; padding: 0 16px 11px; }
-  @media (max-width: 480px) { .chat-launcher { right: 14px; bottom: 14px; } }
+  @media (max-width: 480px) { .chat-launcher { left: 14px; bottom: 14px; } }
 
   /* ---------- new: card head row, backtest, week detail ---------- */
   .card-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-  .chip-static { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 11px; white-space: nowrap; }
-  .chip-static b { color: var(--pos); font-weight: 600; }
+  .chip-static { font-family: "Hanken Grotesk", sans-serif; font-size: 11px; color: var(--ink-soft); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 11px; white-space: nowrap; box-shadow: 0 0 0 rgba(0,0,0,0); transition: box-shadow .3s; }
+  .chip-static:has(b) { box-shadow: 0 0 16px -4px var(--pos-wash); }
+  .chip-static b { font-family: "Bricolage Grotesque", sans-serif; color: var(--pos); font-weight: 700; text-shadow: 0 0 12px var(--pos-wash); }
   .wd-bal { display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 14px; }
   .wd-bal b { color: var(--ink); }
   .wd-arrow { color: var(--ink-faint); }
@@ -461,7 +533,7 @@
 
   /* ---------- new: saved scenarios ---------- */
   .saved-block { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
-  .saved-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+  .saved-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-family: "Hanken Grotesk", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
   .mini-toggle { display: inline-flex; align-items: center; gap: 5px; text-transform: none; letter-spacing: 0; cursor: pointer; font-size: 11px; }
   .saved-list { display: flex; flex-wrap: wrap; gap: 7px; }
   .saved-empty { font-size: 11.5px; color: var(--ink-faint); line-height: 1.5; }
@@ -491,7 +563,7 @@
 
   /* ---------- new: receivables table ---------- */
   .recv-head, .recv-row { display: grid; grid-template-columns: 1.4fr 1fr 0.9fr 1fr auto; gap: 12px; align-items: center; }
-  .recv-head { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .recv-head { font-family: "Hanken Grotesk", sans-serif; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .recv-row { font-size: 13px; padding: 12px 0; border-bottom: 1px solid var(--border); }
   .recv-row:last-child { border-bottom: 0; }
   @media (max-width: 640px) { .recv-head, .recv-row { grid-template-columns: 1fr auto; } .recv-head span:nth-child(2), .recv-head span:nth-child(3), .recv-row span:nth-child(2), .recv-row span:nth-child(3) { display: none; } }
@@ -505,7 +577,7 @@
   .tl-dot { position: absolute; left: 0; top: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--ink-faint); border: 2px solid var(--surface); }
   .tl-item.sev-crit .tl-dot { background: var(--crit); }
   .tl-item.sev-warn .tl-dot { background: var(--warn); }
-  .tl-meta { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: .03em; }
+  .tl-meta { font-family: "Hanken Grotesk", sans-serif; font-size: 10.5px; color: var(--ink-faint); letter-spacing: .03em; }
   .tl-t { font-size: 13px; font-weight: 500; margin-top: 3px; line-height: 1.45; }
   .tl-impact { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
 
@@ -526,7 +598,7 @@
   .tour { position: fixed; inset: 0; z-index: 110; }
   .tour-spot { position: absolute; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(2,17,51,.62); transition: all .3s cubic-bezier(.4,0,.2,1); pointer-events: none; }
   .tour-card { position: absolute; width: min(320px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-pop); padding: 16px; transition: all .3s cubic-bezier(.4,0,.2,1); }
-  .tour-step { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .tour-step { font-family: "Hanken Grotesk", sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
   .tour-text { font-size: 13.5px; line-height: 1.55; margin: 8px 0 14px; }
   .tour-nav { display: flex; align-items: center; justify-content: space-between; }
   .tour-nav-r { display: flex; gap: 8px; }
@@ -542,6 +614,7 @@
       --border: #cfd6e2; --border-strong: #b7c0cf; --band: rgba(20,120,80,.12);
       --line-actual: #0A1B3D; --forecast-tint: rgba(0,0,0,.03);
       --pos: #10794f; --warn: #a9640a; --crit: #c23a33;
+      --info: #1d4fa8; --note: #6a3aa0;
       --accent: #0A1B3D; --mint: #10794f;
     }
     .topbar, .sidenav, .chat-launcher, .tour, .splash, #ob,
@@ -619,12 +692,22 @@
     <button class="link-btn" id="obSkip">Skip — explore with demo data →</button>
   </div>
   <div class="ob-wrap">
+    <div class="ob-guide">
+      <img src="assets/mascot-idle.png" alt="Liqui">
+      <div class="ob-guide-bubble">
+        <div class="ob-guide-eyebrow">Liqui says</div>
+        <div class="ob-guide-title" id="obGuideTitle"></div>
+        <div class="ob-guide-body" id="obGuideBody"></div>
+      </div>
+    </div>
+    <div class="ob-form">
     <div class="stepper" id="obStepper"></div>
     <div class="ob-count" id="obCount"></div>
     <div id="obBody"></div>
     <div class="ob-actions">
       <button class="btn" id="obBack">Back</button>
       <button class="btn primary" id="obNext">Continue</button>
+    </div>
     </div>
   </div>
 </section>
@@ -957,10 +1040,11 @@
 </div>
 
 <div class="chat-launcher" id="chatLauncher" hidden>
+  <div class="chat-bubble" id="chatBubble" hidden role="button" tabindex="0"></div>
   <div class="chat-panel" id="chatPanel" hidden>
     <div class="chat-head">
       <div class="chat-head-id">
-        <span class="chat-avatar">🤖</span>
+        <span class="chat-avatar"><img src="assets/mascot-idle.png" alt=""></span>
         <div><div class="chat-title">LiquiBot Assistant</div><div class="chat-sub">Grounded in your live forecast</div></div>
       </div>
       <button class="icon-btn" id="chatClose" aria-label="Close assistant">
@@ -977,8 +1061,8 @@
     </form>
     <div class="chat-disclaimer">Mock-up assistant for this preview · answers are rule-based, not a live model</div>
   </div>
-  <button class="chat-fab" id="chatToggle" aria-label="Open AI assistant">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.9 8.49 8.6 8.6 0 0 1-3.3-.68L3 21l1.69-5.8A8.5 8.5 0 1 1 21 11.5z"/></svg>
+  <button class="chat-fab" id="chatToggle" aria-label="Open AI assistant · drag to move">
+    <img class="chat-mascot-img" id="chatMascotImg" src="assets/mascot-idle.png" alt="" draggable="false">
     <span class="chat-badge" id="chatBadge" hidden></span>
   </button>
 </div>
@@ -1292,7 +1376,8 @@
       accent: cvar("--accent"), band: cvar("--band"), warn: cvar("--warn"),
       crit: cvar("--crit"), surface: cvar("--surface"),
       mint: cvar("--mint"), lineActual: cvar("--line-actual"),
-      forecastTint: cvar("--forecast-tint"), faint: cvar("--ink-faint")
+      forecastTint: cvar("--forecast-tint"), faint: cvar("--ink-faint"),
+      info: cvar("--info"), note: cvar("--note")
     };
   }
 
@@ -1322,13 +1407,13 @@
     return {
       x: {
         grid: { display: false }, border: { display: false },
-        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, maxRotation: 0, autoSkipPadding: 18, color: C.faint, padding: 8 }
+        ticks: { font: { family: "'Hanken Grotesk', sans-serif", size: 10.5 }, maxRotation: 0, autoSkipPadding: 18, color: C.faint, padding: 8 }
       },
       y: {
         position: "right",
         grid: { color: withAlpha(C.faint, 0.14), drawTicks: false, lineWidth: 1, drawOnChartArea: true },
         border: { display: false },
-        ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, padding: 12, color: C.faint, maxTicksLimit: 5, callback: function (v) { return "€" + v + "k"; } }
+        ticks: { font: { family: "'Hanken Grotesk', sans-serif", size: 10.5 }, padding: 12, color: C.faint, maxTicksLimit: 5, callback: function (v) { return "€" + v + "k"; } }
       }
     };
   }
@@ -1337,8 +1422,8 @@
       backgroundColor: withAlpha(C.ink, 0.96), titleColor: withAlpha(C.surface, 0.6), bodyColor: C.surface,
       padding: { top: 10, bottom: 10, left: 13, right: 13 }, cornerRadius: 11, borderColor: withAlpha(C.surface, 0.08), borderWidth: 1,
       displayColors: true, boxWidth: 7, boxHeight: 7, boxPadding: 5, usePointStyle: true,
-      titleFont: { family: "'IBM Plex Mono', monospace", size: 9.5, weight: "600" }, titleMarginBottom: 7,
-      bodyFont: { family: "'IBM Plex Mono', monospace", size: 12, weight: "500" }, bodySpacing: 5, caretSize: 0, caretPadding: 12
+      titleFont: { family: "'Hanken Grotesk', sans-serif", size: 9.5, weight: "600" }, titleMarginBottom: 7,
+      bodyFont: { family: "'Hanken Grotesk', sans-serif", size: 12, weight: "500" }, bodySpacing: 5, caretSize: 0, caretPadding: 12
     };
   }
 
@@ -1439,9 +1524,9 @@
       try { var _sc = computeSourcing(); var _ba = _sc.recs.filter(function (x) { return x.qty > 0 && x.buyAhead; })[0]; if (_ba) annos.push({ wk: Math.max(1, _ba.arriveWeek || 1), sev: "pos", txt: "Buy-ahead in", sub: shortMat(_ba.name) }); } catch (e) {}
     }
     var rw = Number(state.steel);
-    if (rw !== r.lowW && !annos.some(function (a) { return a.wk === rw; })) annos.push({ wk: rw, sev: "mut", txt: "Stock reorder", sub: rw <= r.lowW ? "defer past dip" : "clears the dip" });
-    [4, 9].forEach(function (tw) { if (tw !== r.lowW && !annos.some(function (a) { return Math.abs(a.wk - tw) < 2; })) annos.push({ wk: tw, sev: "mut", txt: "Tax / VAT due", sub: "reserve cash" }); });
-    var sevRank = { crit: 0, warn: 1, pos: 2, mut: 3 };
+    if (rw !== r.lowW && !annos.some(function (a) { return a.wk === rw; })) annos.push({ wk: rw, sev: "info", txt: "Stock reorder", sub: rw <= r.lowW ? "defer past dip" : "clears the dip" });
+    [4, 9].forEach(function (tw) { if (tw !== r.lowW && !annos.some(function (a) { return Math.abs(a.wk - tw) < 2; })) annos.push({ wk: tw, sev: "note", txt: "Tax / VAT due", sub: "reserve cash" }); });
+    var sevRank = { crit: 0, warn: 1, pos: 2, info: 3, note: 4 };
     annos = annos.filter(function (a) { return a.wk >= 1 && a.wk <= 12; })
       .sort(function (a, b) { return sevRank[a.sev] - sevRank[b.sev]; }).slice(0, 3)
       .sort(function (a, b) { return a.wk - b.wk; });
@@ -1452,7 +1537,10 @@
         var meta = chart.getDatasetMeta(2), ca = chart.chartArea, ctx = chart.ctx;
         if (!meta || !meta.data || !ca || !annos.length) return;
         ctx.save();
-        ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        var titleFont = "700 9.5px 'Bricolage Grotesque', 'Hanken Grotesk', sans-serif";
+        var subFont = "9px 'Hanken Grotesk', sans-serif";
+        ctx.font = titleFont;
+        var sevCol = { crit: C.crit, warn: C.warn, pos: C.mint, info: C.info, note: C.note };
         var laneEnds = []; // right edge x per lane
         annos.forEach(function (a) {
           var pt = meta.data[4 + a.wk]; if (!pt) return;
@@ -1463,17 +1551,21 @@
           while (laneEnds[lane] != null && x0 < laneEnds[lane] + 6) lane++;
           laneEnds[lane] = x0 + w;
           var ly = 3 + lane * (bh + 4); // stacked in the top padding band, above the plot
-          var col = a.sev === "crit" ? C.crit : a.sev === "warn" ? C.warn : a.sev === "pos" ? C.mint : C.faint;
+          var col = sevCol[a.sev] || C.faint;
           ctx.strokeStyle = col; ctx.lineWidth = 1.25; ctx.setLineDash([2, 2]);
           ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt.x, ly + bh); ctx.stroke(); ctx.setLineDash([]);
+          ctx.shadowColor = col; ctx.shadowBlur = 9;
           ctx.fillStyle = col; ctx.beginPath(); ctx.arc(pt.x, pt.y, 3.5, 0, 6.29); ctx.fill();
+          ctx.shadowBlur = 6;
           roundRect(ctx, x0, ly, w, bh, 5);
-          ctx.fillStyle = C.surface; ctx.fill(); ctx.stroke();
+          ctx.fillStyle = C.surface; ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.stroke();
           ctx.textBaseline = "top"; ctx.textAlign = "left";
+          ctx.font = titleFont;
           ctx.fillStyle = col; ctx.fillText(a.txt, x0 + 7, ly + 3);
-          ctx.fillStyle = C.inkSoft; ctx.font = "9px 'IBM Plex Mono', monospace";
+          ctx.fillStyle = C.inkSoft; ctx.font = subFont;
           ctx.fillText("→ " + a.sub, x0 + 7, ly + 14);
-          ctx.font = "600 9px 'IBM Plex Mono', monospace";
         });
         ctx.restore();
       }
@@ -1498,7 +1590,7 @@
         if (!xs || !ca) return;
         var x = xs.getPixelForValue(4);
         ctx.save();
-        ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        ctx.font = "600 9px 'Hanken Grotesk', sans-serif";
         var label = "TODAY", tw = ctx.measureText(label).width;
         ctx.fillStyle = C.ink;
         roundRect(ctx, x - tw / 2 - 6, ca.top - 2, tw + 12, 15, 4); ctx.fill();
@@ -1565,10 +1657,20 @@
     box.appendChild(el);
   }
 
+  function setMascot(pose) {
+    var img = document.getElementById("chatMascotImg");
+    if (img) img.src = "assets/mascot-" + pose + ".png";
+  }
   function updateChatBadge(r, p) {
     var b = document.getElementById("chatBadge");
-    if (b) b.hidden = !(r.low < p.reserve);
+    var crit = r.low < p.reserve;
+    if (b) b.hidden = !crit;
+    var l = document.getElementById("chatLauncher");
+    if (l) l.classList.toggle("has-critical", crit);
+    if (!crit) mascotTraveled = false;
+    if (!mascotTraveled) setMascot("idle"); // only points once actually at the chart point
   }
+  var mascotTraveled = false;
 
   var chatHistory = [], chatOpen = false, chatGreeted = false;
   function chatEl(id) { return document.getElementById(id); }
@@ -1587,15 +1689,20 @@
     setTimeout(function () { chatHistory.pop(); cb(); }, 500 + Math.random() * 350);
   }
 
+  function chatAction(label, view) { return '<button type="button" class="chat-action" data-goto="' + view + '">' + esc(label) + '</button>'; }
+
   function botReply(userText) {
     var r = compute(), p = COMPANIES[state.company];
     var t = userText.toLowerCase();
-    if (/low point|dip|lowest|tight/.test(t)) {
+    if (/low point|dip|lowest|tight|critical/.test(t)) {
+      var below = r.low < p.reserve;
       return "Your projected low point is <b>" + eur(r.low) + "</b> in week " + r.lowW + " (" + weekDate(r.lowW) + ")."
-        + (r.low < p.reserve ? " That's below your €" + p.reserve + "k minimum reserve — worth a closer look." : " That stays above your €" + p.reserve + "k reserve.");
+        + (below ? " That's below your €" + p.reserve + "k minimum reserve — worth a closer look." : " That stays above your €" + p.reserve + "k reserve.")
+        + (below ? chatAction("See recommended actions", "actions") : "");
     }
     if (/worst|p10|confidence|runway/.test(t)) {
-      return "In the worst case (P10) you'd be at <b>" + eur(r.low10) + "</b>, covering about " + r.weeksOpex.toFixed(1) + " weeks of operating cost. Runway confidence is currently <b>" + Math.round(r.conf) + "%</b>.";
+      return "In the worst case (P10) you'd be at <b>" + eur(r.low10) + "</b>, covering about " + r.weeksOpex.toFixed(1) + " weeks of operating cost. Runway confidence is currently <b>" + Math.round(r.conf) + "%</b>."
+        + chatAction("Review scenario controls", "forecast");
     }
     if (/why|driver|cause|reason/.test(t)) {
       var top = r.drivers.slice().sort(function (a, b) { return a.amt - b.amt; })[0];
@@ -1604,27 +1711,31 @@
         : "This is the base-case forecast — no scenario adjustments are applied yet. Try a preset like \"Energy spike +45%\" in Scenario controls to stress-test it.";
     }
     if (/energy|electricity|gas|power/.test(t)) {
-      return "Electricity runs about €" + p.elecWeekly + "k/week and gas about €" + p.gasWeekly + "k/week in your baseline. Day-ahead power averaged 95.21 €/MWh in Q2 2026, up 36.5% year-on-year — that volatility is priced into the weeks around your low point.";
+      return "Electricity runs about €" + p.elecWeekly + "k/week and gas about €" + p.gasWeekly + "k/week in your baseline. Day-ahead power averaged 95.21 €/MWh in Q2 2026, up 36.5% year-on-year — that volatility is priced into the weeks around your low point."
+        + chatAction("Open Risk radar", "risk");
     }
     if (/sourcing|procure|purchas|raw material|material|order book|pipeline|buy ?ahead|steel|metal|copper|diesel|stock up|how much.*buy/.test(t)) {
       var sc = computeSourcing();
       var big = sc.recs.filter(function (x) { return x.qty > 0; }).sort(function (a, b) { return b.cost - a.cost; })[0];
-      if (!big) return "Your current stock covers the material demand from confirmed and probability-weighted pipeline orders over the next 13 weeks — no purchases recommended right now.";
+      if (!big) return "Your current stock covers the material demand from confirmed and probability-weighted pipeline orders over the next 13 weeks — no purchases recommended right now." + chatAction("Open Orders & sourcing", "sourcing");
       return "Biggest sourcing move: <b>" + big.qty + " " + big.unit + " of " + big.name + "</b> (~" + eur(big.cost) + "), "
         + (big.buyAhead ? "bought ahead of a projected price step-up — est. saving " + eur(Math.max(0, big.saving)) + "." : "ordered just-in-time.")
-        + " Full plan ~" + eur(sc.planCost) + ", expected saving ~" + eur(Math.max(0, sc.planSaving)) + " vs. buying at spot after the step-up. Toggle \"AI sourcing plan\" to fold it into the forecast.";
+        + " Full plan ~" + eur(sc.planCost) + ", expected saving ~" + eur(Math.max(0, sc.planSaving)) + " vs. buying at spot after the step-up. Toggle \"AI sourcing plan\" to fold it into the forecast."
+        + chatAction("Reorder now in Orders & sourcing", "sourcing");
     }
     if (/inventory|stock|reorder/.test(t)) {
-      return "Your main stock item (" + p.inv[0].nm + ") is booked for week " + state.steel + ". Deferring a reorder past the low week can meaningfully lift your low point — see the Inventory tab for the exact swing.";
+      return "Your main stock item (" + p.inv[0].nm + ") is booked for week " + state.steel + ". Deferring a reorder past the low week can meaningfully lift your low point — see the Inventory tab for the exact swing."
+        + chatAction("Open Inventory", "inventory");
     }
     if (/hire|hiring|staff|payroll/.test(t)) {
       return "Each additional hire costs roughly €1.45k/week. With " + state.hire + " extra hire(s) currently modelled, that's about " + signed(-state.hire * 1.45 * r.lowW) + " at the low week.";
     }
     if (/reserve|minimum|floor/.test(t)) {
-      return "Your minimum cash reserve is set to €" + p.reserve + "k. " + (r.low < p.reserve ? "The forecast currently dips below it in week " + r.lowW + "." : "The forecast stays above it throughout the 12-week window.");
+      return "Your minimum cash reserve is set to €" + p.reserve + "k. " + (r.low < p.reserve ? "The forecast currently dips below it in week " + r.lowW + "." : "The forecast stays above it throughout the 12-week window.")
+        + (r.low < p.reserve ? chatAction("See recommended actions", "actions") : "");
     }
     if (/^hi\b|hello|hey/.test(t)) {
-      return "Hi! I can walk you through this forecast — try asking about the low point, worst case, energy risk, or inventory timing.";
+      return "Hi! I can walk you through this forecast — try asking about the low point, worst case, energy risk, or inventory timing." + (r.low < p.reserve ? " Or tap the button below to jump straight to your critical point." + chatAction("Show me the critical point", "forecast") : "");
     }
     return "I'm a mock-up assistant for this preview, so I only speak to what's on screen: the forecast, its drivers, the risk radar and inventory. Try asking \"why does cash dip?\" or \"what's my worst case?\"";
   }
@@ -1634,6 +1745,17 @@
     addMsg("user", esc(text));
     addTyping(function () { addMsg("bot", botReply(text)); });
   }
+  function clampLauncherToViewport() {
+    var l = chatEl("chatLauncher");
+    if (!l) return;
+    pinToExplicitPos(); // convert the CSS-default docked position to explicit coords so it can be clamped too
+    requestAnimationFrame(function () {
+      var r = l.getBoundingClientRect();
+      var nx = Math.max(8, Math.min(parseFloat(l.style.left), window.innerWidth - r.width - 8));
+      var ny = Math.max(8, Math.min(parseFloat(l.style.top), window.innerHeight - r.height - 8));
+      l.style.left = nx + "px"; l.style.top = ny + "px";
+    });
+  }
   function openChatPanel() {
     chatEl("chatPanel").hidden = false; chatOpen = true;
     if (!chatGreeted) {
@@ -1641,29 +1763,243 @@
       addMsg("bot", "Hi, I'm the LiquiBot assistant — a mock-up for this preview. Ask me about your forecast, risks, or inventory timing, or tap a suggestion below.");
     }
     chatEl("chatInput").focus();
+    clampLauncherToViewport();
   }
-  function closeChatPanel() { chatEl("chatPanel").hidden = true; chatOpen = false; }
+  function closeChatPanel() { chatEl("chatPanel").hidden = true; chatOpen = false; clampLauncherToViewport(); }
   function askAboutLow(r, p) {
     openChatPanel();
     addMsg("user", "Why does cash dip in week " + r.lowW + "?");
     addTyping(function () {
       var top = r.drivers.slice().sort(function (a, b) { return a.amt - b.amt; })[0];
       var extra = (top && Math.abs(top.amt) > 0.5) ? " On top of the base pattern, <b>" + top.name.toLowerCase() + "</b> is currently the largest scenario factor, worth " + signed(top.amt) + "." : "";
+      var below = r.low < p.reserve;
+      var action = below ? chatAction("Fix it now — see recommended actions", "actions") : chatAction("Reorder stock past the dip", "inventory");
       addMsg("bot", "Week " + r.lowW + " (" + weekDate(r.lowW) + ") is your tightest point: projected cash falls to <b>" + eur(r.low) + "</b>, "
-        + (r.low < p.reserve ? "below" : "still above") + " your €" + p.reserve + "k reserve. That's usually where payroll, energy costs and any tax payment land closest together." + extra);
+        + (below ? "below" : "still above") + " your €" + p.reserve + "k reserve. That's usually where payroll, energy costs and any tax payment land closest together." + extra
+        + " " + (below ? "Do this now: draw the credit line or chase overdue invoices to close the gap." : "You're clear — but deferring your next stock reorder past this week keeps it that way.")
+        + action);
     });
   }
 
-  var CHAT_QUICK = ["Why does cash dip?", "What's my worst case?", "How's my energy risk?", "How much raw material should I buy?"];
+  var CHAT_QUICK = ["Show me the critical point", "Why does cash dip?", "What's my worst case?", "How's my energy risk?", "How much raw material should I buy?"];
   chatEl("chatQuick").innerHTML = CHAT_QUICK.map(function (q) { return '<button type="button" class="chat-chip">' + q + '</button>'; }).join("");
-  chatEl("chatQuick").addEventListener("click", function (e) { if (e.target.matches(".chat-chip")) sendChat(e.target.textContent); });
-  chatEl("chatToggle").addEventListener("click", function () { chatOpen ? closeChatPanel() : openChatPanel(); });
+  chatEl("chatQuick").addEventListener("click", function (e) {
+    if (!e.target.matches(".chat-chip")) return;
+    var q = e.target.textContent;
+    if (q === "Show me the critical point") { flashCriticalPoint(); return; }
+    sendChat(q);
+  });
+  chatEl("chatToggle").addEventListener("click", function () { hideChatBubble(); chatOpen ? closeChatPanel() : openChatPanel(); });
   chatEl("chatClose").addEventListener("click", closeChatPanel);
   chatEl("chatForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var inp = chatEl("chatInput"), v = inp.value; inp.value = "";
     sendChat(v);
   });
+  chatEl("chatMsgs").addEventListener("click", function (e) {
+    var btn = e.target.closest(".chat-action"); if (!btn) return;
+    var goto = btn.dataset.goto;
+    if (goto === "forecast") { flashCriticalPoint(); return; }
+    hideChatBubble(); // navigating elsewhere — send the mascot home if it was still at a point
+    closeChatPanel();
+    setView(goto);
+  });
+  // clicking anything else in the app while the mascot is standing at a chart point sends
+  // it back home to its normal dock + idle look, instead of leaving it stranded there.
+  document.addEventListener("click", function (e) {
+    if (!mascotTraveled) return;
+    if (chatEl("chatLauncher").contains(e.target)) return;
+    hideChatBubble(); // default goHome:true
+  }, true);
+
+  /* ---------- drag + mascot travel ---------- */
+  var dragLauncher = chatEl("chatLauncher"), dragFab = chatEl("chatToggle");
+  var dragPinned = false;
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function pinToExplicitPos() {
+    if (!dragLauncher) return;
+    var r = dragLauncher.getBoundingClientRect();
+    if (!r.width) return; // still hidden, nothing to pin yet
+    dragLauncher.style.top = r.top + "px"; dragLauncher.style.left = r.left + "px";
+    dragLauncher.style.right = "auto"; dragLauncher.style.bottom = "auto";
+    dragLauncher.classList.add("pinned");
+    dragPinned = true;
+  }
+  function moveLauncherTo(x, y, animate) {
+    if (!dragLauncher) return;
+    pinToExplicitPos();
+    var r = dragLauncher.getBoundingClientRect();
+    var nx = clamp(x, 8, window.innerWidth - r.width - 8);
+    var ny = clamp(y, 8, window.innerHeight - r.height - 8);
+    if (animate && !reduceMotion()) dragLauncher.classList.add("traveling");
+    dragLauncher.style.left = nx + "px";
+    dragLauncher.style.top = ny + "px";
+    if (animate) setTimeout(function () { dragLauncher.classList.remove("traveling"); }, 650);
+  }
+  (function initChatDrag() {
+    if (!dragLauncher || !dragFab) return;
+    var dragging = false, moved = false, startX = 0, startY = 0, origX = 0, origY = 0;
+    function onDown(e) {
+      if (e.button != null && e.button !== 0) return;
+      pinToExplicitPos();
+      dragging = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      var r = dragLauncher.getBoundingClientRect();
+      origX = r.left; origY = r.top;
+      dragLauncher.classList.add("dragging");
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) { moved = true; hideChatBubble(false); }
+      var r = dragLauncher.getBoundingClientRect();
+      dragLauncher.style.left = clamp(origX + dx, 8, window.innerWidth - r.width - 8) + "px";
+      dragLauncher.style.top = clamp(origY + dy, 8, window.innerHeight - r.height - 8) + "px";
+    }
+    function onUp() {
+      dragging = false;
+      dragLauncher.classList.remove("dragging");
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+    }
+    dragFab.addEventListener("pointerdown", onDown);
+    dragFab.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    var head = dragLauncher.querySelector(".chat-head");
+    if (head) head.addEventListener("pointerdown", onDown);
+    window.addEventListener("resize", function () {
+      if (!dragPinned) return;
+      var r = dragLauncher.getBoundingClientRect();
+      dragLauncher.style.left = clamp(r.left, 8, window.innerWidth - r.width - 8) + "px";
+      dragLauncher.style.top = clamp(r.top, 8, window.innerHeight - r.height - 8) + "px";
+    });
+  })();
+
+  var chatBubbleTimer = null, typeTimer = null;
+  function hideChatBubble(goHome) {
+    var b = chatEl("chatBubble");
+    if (b) { b.hidden = true; b.classList.remove("show"); }
+    clearTimeout(chatBubbleTimer); clearInterval(typeTimer);
+    if (goHome !== false && mascotTraveled) sendMascotHome(true);
+  }
+  function typeInto(el, text, speed, cb) {
+    clearInterval(typeTimer);
+    el.textContent = "";
+    var i = 0;
+    typeTimer = setInterval(function () {
+      el.textContent = text.slice(0, i + 1);
+      i++;
+      if (i >= text.length) { clearInterval(typeTimer); if (cb) cb(); }
+    }, speed);
+  }
+  function keepBubbleOnScreen() {
+    // the bubble is absolutely positioned above the mascot and can grow past the viewport
+    // edge on small screens — nudge only the bubble (never the mascot) back into view.
+    var b = chatEl("chatBubble"); if (!b || b.hidden) return;
+    var r = b.getBoundingClientRect();
+    var dx = 0;
+    if (r.left < 8) dx = 8 - r.left;
+    else if (r.right > window.innerWidth - 8) dx = (window.innerWidth - 8) - r.right;
+    b.style.transform = dx ? "translateX(calc(-50% + " + dx + "px))" : "";
+    if (r.top < 8) b.style.marginBottom = (14 + (8 - r.top)) + "px"; else b.style.marginBottom = "";
+  }
+  function showCriticalBubble(headText, factHTML, doText) {
+    var b = chatEl("chatBubble"); if (!b) return;
+    clearTimeout(chatBubbleTimer); clearInterval(typeTimer);
+    b.style.transform = ""; b.style.marginBottom = "";
+    b.innerHTML = '<div class="chat-bubble-head"><span id="cbHeadText"></span><span class="chat-caret"></span></div>'
+      + '<div class="chat-bubble-body" id="cbBody" hidden>'
+      + '<div class="chat-bubble-fact">' + factHTML + '</div>'
+      + '<div class="chat-bubble-do">' + esc(doText) + '</div>'
+      + '<span class="chat-bubble-hint">Tap for more →</span></div>';
+    b.hidden = false;
+    requestAnimationFrame(function () { b.classList.add("show"); keepBubbleOnScreen(); });
+    typeInto(chatEl("cbHeadText"), headText, 26, function () {
+      var body = chatEl("cbBody");
+      body.hidden = false;
+      requestAnimationFrame(function () { body.classList.add("show"); keepBubbleOnScreen(); });
+      chatBubbleTimer = setTimeout(hideChatBubble, 8000);
+    });
+  }
+  function sendMascotHome(animate) {
+    // the CSS default dock is left:60px / bottom:56px against the closed-fab size (128x150) —
+    // reproduce that as an explicit target so the glide-home lands exactly where the mascot
+    // normally lives, instead of wherever flashCriticalPoint last left it.
+    moveLauncherTo(60, window.innerHeight - 56 - 150, animate);
+    mascotTraveled = false;
+    setMascot("idle");
+  }
+  chatEl("chatBubble").addEventListener("click", function () {
+    hideChatBubble(); // default goHome:true — sends the mascot home since it's still "traveled"
+    setTimeout(function () {
+      askAboutLow(compute(), COMPANIES[state.company]);
+    }, reduceMotion() ? 0 : 620);
+  });
+
+  // fingertip position as a fraction of the mascot <img>'s own rendered box (measured on
+  // the final 601x705 cropped artwork) — used both for the initial placement guess and,
+  // more importantly, for the self-correcting pass below.
+  var MASCOT_HAND_FRAC = { "point-right": { x: 0.975, y: 0.545 }, "point-left": { x: 0.033, y: 0.556 } };
+
+  function chartLowPointTarget(r, canvas) {
+    var chart = charts.main, meta = chart && chart.getDatasetMeta(2);
+    var pt = meta && meta.data && meta.data[4 + r.lowW];
+    if (!pt || !canvas) return null;
+    var rect = canvas.getBoundingClientRect();
+    return { x: rect.left + pt.x, y: rect.top + pt.y, chartX: pt.x, chartWidth: rect.width };
+  }
+
+  function flashCriticalPoint() {
+    closeChatPanel();
+    hideChatBubble(false); // about to travel to a (possibly new) point — don't snap home first
+    setView("forecast");
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var r = compute(), p = COMPANIES[state.company];
+        var canvas = document.getElementById("mainChart");
+        if (canvas && canvas.scrollIntoView) canvas.scrollIntoView({ behavior: "auto", block: "center" });
+        // give the view-switch reflow (KPI count-up, accuracy chip text, card resizing, the
+        // instant scroll) time to fully settle before we measure anything — a couple of
+        // rAFs wasn't enough, other async layout changes were still landing after that.
+        setTimeout(function () {
+          var arrived = function () {
+            var below = r.low < p.reserve;
+            showCriticalBubble(
+              "Week " + r.lowW + " · " + weekDate(r.lowW),
+              "Cash falls to <b>" + eur(r.low) + "</b>, " + (below ? "below" : "above") + " your €" + p.reserve + "k reserve.",
+              below ? "Draw the credit line, or chase overdue invoices to close the gap." : "You're clear — defer your next reorder past this week to keep it that way."
+            );
+          };
+          var target = chartLowPointTarget(r, canvas);
+          if (!target) { arrived(); return; }
+          var MW = 114, MH = 133;
+          var pose = target.chartX < (target.chartWidth / 2) ? "point-left" : "point-right";
+          var hand = MASCOT_HAND_FRAC[pose];
+          moveLauncherTo(target.x - hand.x * MW, target.y - hand.y * MH, true);
+          mascotTraveled = true;
+          setMascot(pose);
+          setTimeout(function () {
+            // self-correcting pass: measure exactly where the fingertip rendered (this
+            // accounts for the button's own centering padding and any residual drift) and
+            // nudge the launcher so it lands precisely on the point, instead of trusting
+            // the up-front estimate alone.
+            var img = chatEl("chatMascotImg"), fresh = chartLowPointTarget(r, canvas);
+            if (img && fresh) {
+              var ir = img.getBoundingClientRect();
+              var fingerX = ir.left + hand.x * ir.width, fingerY = ir.top + hand.y * ir.height;
+              var dx = fresh.x - fingerX, dy = fresh.y - fingerY;
+              if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                dragLauncher.style.left = (parseFloat(dragLauncher.style.left) + dx) + "px";
+                dragLauncher.style.top = (parseFloat(dragLauncher.style.top) + dy) + "px";
+              }
+            }
+            arrived();
+          }, reduceMotion() ? 0 : 620); // wait for the .traveling glide to finish
+        }, 80);
+      });
+    });
+  }
 
   function drawDrivers(r) {
     var box = document.getElementById("drivers");
@@ -1808,7 +2144,7 @@
         ctx.setLineDash([3, 3]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.faint;
         ctx.beginPath(); ctx.moveTo(x, ca.top); ctx.lineTo(x, ca.bottom); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.font = "600 9px 'IBM Plex Mono', monospace";
+        ctx.font = "600 9px 'Hanken Grotesk', sans-serif";
         var t = "NOW", tw = ctx.measureText(t).width;
         ctx.fillStyle = C.ink; roundRect(ctx, x - tw / 2 - 6, ca.top - 2, tw + 12, 15, 4); ctx.fill();
         ctx.fillStyle = C.surface; ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -2077,7 +2413,7 @@
         options: {
           responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
           layout: { padding: { top: 10, right: 4 } }, animation: premiumAnim(),
-          plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 8, boxHeight: 8, padding: 16, font: { family: "'IBM Plex Mono', monospace", size: 10.5 }, color: C.inkSoft, usePointStyle: true, pointStyle: "circle" } },
+          plugins: { legend: { display: true, position: "bottom", labels: { boxWidth: 8, boxHeight: 8, padding: 16, font: { family: "'Hanken Grotesk', sans-serif", size: 10.5 }, color: C.inkSoft, usePointStyle: true, pointStyle: "circle" } },
             tooltip: Object.assign(tip(C), { callbacks: { label: function (c) { return "  " + c.dataset.label + "   index " + c.parsed.y; } } }) },
           scales: (function () { var sc = baseScales(C); sc.y.ticks.callback = function (v) { return v; }; return sc; })()
         }
@@ -2665,27 +3001,31 @@
       + '<div id="obPreview"></div>';
   }
 
+  var STEP_GUIDE = [
+    { title: "Tell me about your company", body: "Country, size and industry decide which local data feeds, interest rate and tax calendar I use — so start here." },
+    { title: "Where does your cash stand today?", body: "Everything I forecast is a projection <b>forward</b> from these two numbers: what's in the bank right now, and the floor you never want to drop below." },
+    { title: "How does money move each month?", body: "Rough figures are fine for now — once you connect a bank or accounting feed later, I'll refine these automatically instead of using flat monthly averages." },
+    { title: "How exposed are you to energy prices?", body: "Electricity and gas are often the most volatile cost in your forecast. I price live SMARD market swings directly against these numbers." },
+    { title: "What's already coming due?", body: "Large known outflows — tax, VAT, slow-paying customers — are exactly what shifts a dip earlier or later. This is what makes the forecast <b>yours</b>, not a generic template." },
+    { title: "What stock are you sitting on?", body: "I check every reorder against the forecast, so a restock never lands right when cash is already tight." },
+    { title: "Last thing — take a look", body: "Here's everything that feeds the forecast, plus the option to connect real data feeds. You can change any of it later from Edit inputs." }
+  ];
   function stepHTML(i) {
-    if (i === 0) return '<h2>Tell us about your company</h2><div class="lead">This sets the local data feeds, rate and filing calendar LiquiBot uses.</div>'
-      + F("name", "Company name", { type: "text", hint: "Optional" })
+    if (i === 0) return F("name", "Company name", { type: "text", hint: "Optional" })
       + '<div class="grid2">' + F("country", "Country", { select: [["DE", "Germany"], ["AT", "Austria"], ["CH", "Switzerland"]] }) + F("employees", "Employees", {}) + '</div>'
       + F("industry", "Industry", { select: [["Manufacturing", "Manufacturing"], ["Wholesale", "Wholesale / trade"], ["Logistics", "Logistics"], ["Trades", "Construction / trades"], ["Services", "Services"], ["Other", "Other"]] });
-    if (i === 1) return '<h2>Your cash position today</h2><div class="lead">The starting point for the 12-week projection.</div>'
-      + F("openingCash", "Opening bank balance", { pfx: "€", hint: "Total across all business accounts right now" })
+    if (i === 1) return F("openingCash", "Opening bank balance", { pfx: "€", hint: "Total across all business accounts right now" })
       + F("reserve", "Minimum cash reserve", { pfx: "€", hint: "The floor you never want to fall below — LiquiBot alerts as the forecast approaches it" });
-    if (i === 2) return '<h2>Monthly cash flow</h2><div class="lead">Rough monthly figures are fine — connected feeds refine them automatically.</div>'
-      + F("monthlyRevenue", "Monthly revenue received", { pfx: "€" })
+    if (i === 2) return F("monthlyRevenue", "Monthly revenue received", { pfx: "€" })
       + F("monthlyOpex", "Monthly operating costs", { pfx: "€", hint: "Rent, materials, services — excluding payroll and energy" })
       + F("monthlyPayroll", "Monthly payroll", { pfx: "€", hint: "Gross, including employer contributions" });
-    if (i === 3) return '<h2>Energy exposure</h2><div class="lead">LiquiBot prices SMARD electricity &amp; gas volatility directly into the forecast.</div>'
-      + F("monthlyElec", "Monthly electricity cost", { pfx: "€" })
+    if (i === 3) return F("monthlyElec", "Monthly electricity cost", { pfx: "€" })
       + F("monthlyGas", "Monthly gas cost", { pfx: "€", hint: "Enter 0 if you don't use gas" })
       + F("hedge", "Price hedging", { select: [["none", "Not hedged — full spot exposure"], ["partial", "Partly hedged"], ["full", "Fully hedged / fixed contract"]] });
-    if (i === 4) return '<h2>Upcoming obligations</h2><div class="lead">Large known outflows shape where the dips fall.</div>'
-      + '<div class="grid2">' + F("taxAmount", "Next tax / VAT payment", { pfx: "€" }) + F("taxWeek", "In how many weeks?", { hint: "1–12" }) + '</div>'
+    if (i === 4) return '<div class="grid2">' + F("taxAmount", "Next tax / VAT payment", { pfx: "€" }) + F("taxWeek", "In how many weeks?", { hint: "1–12" }) + '</div>'
       + F("terms", "Customer payment terms", { hint: "Average days customers take to pay" });
-    if (i === 5) return '<h2>Inventory &amp; stock</h2><div class="lead">Reorder timing is checked against the forecast, so a restock never lands on a projected dip.</div>' + invRows();
-    if (i === 6) return '<h2>Review &amp; build your forecast</h2>' + reviewHTML();
+    if (i === 5) return invRows();
+    if (i === 6) return reviewHTML();
     return "";
   }
 
@@ -2736,6 +3076,12 @@
       return '<i class="' + (i < step ? "done" : i === step ? "now" : "") + '"></i>';
     }).join("");
     document.getElementById("obCount").textContent = "Step " + (step + 1) + " of " + STEPS.length + " · " + STEPS[step];
+    var g = STEP_GUIDE[step];
+    var gt = document.getElementById("obGuideTitle"), gb = document.getElementById("obGuideBody");
+    var bubble = document.querySelector(".ob-guide-bubble");
+    if (bubble) { bubble.classList.remove("fade"); void bubble.offsetWidth; bubble.classList.add("fade"); }
+    gt.textContent = g.title;
+    gb.innerHTML = g.body;
     var b = document.getElementById("obBody");
     b.innerHTML = stepHTML(step);
     bindStep(b);
