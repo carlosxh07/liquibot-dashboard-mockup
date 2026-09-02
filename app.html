@@ -268,6 +268,7 @@
 
   /* ---------- scenario rail ---------- */
   .rail { position: sticky; top: 86px; }
+  @media (max-width: 1080px) { .rail { position: static; } }
   .rail .card { border-color: var(--border-strong); background: var(--surface-2); }
   .rail .card-pad { padding: 18px 18px 20px; }
   .rail .card > .card-pad > .card-sub { margin-bottom: 4px; }
@@ -291,6 +292,11 @@
   input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.12); }
   input[type="range"]::-moz-range-thumb { width: 19px; height: 19px; border-radius: 50%; background: var(--brand-mint); border: 3px solid var(--surface); box-shadow: 0 1px 4px rgba(10,27,61,.28); cursor: pointer; }
   input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--mint-wash); }
+  @media (max-width: 900px) {
+    input[type="range"] { height: 10px; margin: 10px 0; }
+    input[type="range"]::-webkit-slider-thumb { width: 28px; height: 28px; }
+    input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; }
+  }
   select.mini { width: 100%; font-family: inherit; font-size: 13.5px; background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); border-radius: var(--r-sm); padding: 11px 12px; transition: border-color .15s; }
   select.mini:hover { border-color: var(--border-strong); }
   select.mini:focus-visible { border-color: var(--mint-bright); }
@@ -2789,10 +2795,19 @@
     var ft = document.getElementById("finToggle"); if (ft) ft.checked = state.financing;
   }
 
+  var renderScheduled = false;
+  function scheduleRender() {
+    // dragging a slider can fire dozens of "input" events per second, and render() fully
+    // destroys + rebuilds the Chart.js instance each time — very heavy on mobile. Coalesce
+    // any events landing in the same frame into a single render instead of one each.
+    if (renderScheduled) return;
+    renderScheduled = true;
+    requestAnimationFrame(function () { renderScheduled = false; render(); });
+  }
   function bindRange(id, key) {
     document.getElementById(id).addEventListener("input", function (e) {
       state[key] = parseInt(e.target.value, 10);
-      syncLabels(); render();
+      syncLabels(); scheduleRender();
     });
   }
   bindRange("s-elec", "elec"); bindRange("s-gas", "gas");
