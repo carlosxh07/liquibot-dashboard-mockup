@@ -157,11 +157,32 @@
   }
   .icon-btn:hover { color: var(--chrome-ink); background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); }
   .icon-btn svg { width: 17px; height: 17px; }
-  @media (max-width: 680px) { .topbar .status, .topbar .sep { display: none; } .topbar { gap: 12px; padding: 0 14px; } }
+  @media (max-width: 680px) { .topbar .status, .topbar .sep { display: none; } .topbar { gap: 8px; padding: 0 14px; } .co-select { min-width: 0; max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; padding: 7px 8px; } .icon-btn { width: 34px; height: 34px; } }
+  @media (max-width: 420px) { .brand { font-size: 15px; } .co-select { max-width: 34vw; } #tourBtn { display: none; } }
 
   /* ---------- shell + sidebar (dark chrome) ---------- */
   .shell { display: grid; grid-template-columns: 244px 1fr; }
   @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .sidenav { display: none; } }
+
+  /* ---------- mobile bottom nav (replaces the sidebar under 900px) ---------- */
+  .mobilenav {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+    background: var(--chrome); border-top: 1px solid var(--chrome-line);
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .mobilenav::-webkit-scrollbar { display: none; }
+  @media (max-width: 900px) {
+    .mobilenav { display: flex; }
+    main { padding-bottom: 90px; }
+  }
+  .mobilenav .nav-item {
+    flex: 0 0 auto; width: auto; flex-direction: column; align-items: center; gap: 4px;
+    padding: 7px 14px; border-radius: 12px; font-size: 10.5px; white-space: nowrap;
+  }
+  .mobilenav .nav-item svg { width: 19px; height: 19px; }
+  .mobilenav .nav-item.active::before { left: 8px; right: 8px; top: 0; bottom: auto; width: auto; height: 3px; border-radius: 0 0 3px 3px; }
+  .mobilenav .nav-badge { position: absolute; top: 2px; right: 6px; }
 
   .sidenav {
     background: var(--chrome); border-right: 1px solid var(--chrome-line);
@@ -396,6 +417,26 @@
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .inv-row { border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px; margin-bottom: 12px; background: var(--surface-2); }
   .inv-row.err { border-color: var(--crit); }
+  .upload-drop {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    border: 1.5px dashed var(--border-strong); border-radius: var(--r-md); padding: 14px 16px;
+    background: var(--surface-2); cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .upload-drop:hover, .upload-drop:focus-within { border-color: var(--mint-bright); background: var(--mint-wash); }
+  .upload-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; background: var(--accent-wash); color: var(--accent); display: grid; place-items: center; }
+  .upload-icon svg { width: 17px; height: 17px; }
+  .upload-copy { min-width: 0; }
+  .upload-title { font-size: 13px; font-weight: 700; }
+  .upload-hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+  .upload-or { display: flex; align-items: center; gap: 10px; margin: 16px 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .upload-or::before, .upload-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .upload-file { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px 14px; background: var(--surface-2); }
+  .upload-file .upload-icon { background: var(--mint-wash); color: var(--pos); }
+  .upload-file-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .upload-file-size { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+  .upload-file .link-btn { margin-left: auto; flex-shrink: 0; color: var(--crit); }
+  .upload-note { font-size: 11.5px; color: var(--ink-faint); margin-top: 8px; line-height: 1.5; }
   .link-btn { background: none; border: 0; padding: 0; color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 600; }
   .link-btn:hover { text-decoration: underline; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
@@ -513,7 +554,8 @@
   .chat-send:hover { background: var(--accent-deep); }
   .chat-send svg { width: 16px; height: 16px; }
   .chat-disclaimer { font-size: 10px; color: var(--ink-faint); text-align: center; padding: 0 16px 11px; }
-  @media (max-width: 480px) { .chat-launcher { left: 14px; bottom: 14px; } }
+  @media (max-width: 900px) { .chat-launcher { bottom: calc(74px + env(safe-area-inset-bottom)); } }
+  @media (max-width: 480px) { .chat-launcher { left: 10px; } }
 
   /* ---------- new: card head row, backtest, week detail ---------- */
   .card-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
@@ -1037,6 +1079,15 @@
       </div>
     </div>
   </div>
+
+  <nav class="mobilenav" aria-label="Sections">
+    <button class="nav-item active" data-view="forecast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 6-8"/></svg>Forecast</button>
+    <button class="nav-item" data-view="actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>Actions<span class="nav-badge" id="navActionBadgeMobile" hidden></span></button>
+    <button class="nav-item" data-view="risk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-6 4 2 8-6-5-6 5 2-8-6-4h7z"/></svg>Risk radar</button>
+    <button class="nav-item" data-view="inventory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg>Inventory</button>
+    <button class="nav-item" data-view="sourcing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M5 7v14h14V7"/><path d="M9 12h6"/></svg>Orders &amp; sourcing</button>
+    <button class="nav-item" data-view="feeds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Data feeds</button>
+  </nav>
 </div>
 
 <div class="chat-launcher" id="chatLauncher" hidden>
@@ -1923,10 +1974,18 @@
     });
   }
   function sendMascotHome(animate) {
-    // the CSS default dock is left:60px / bottom:56px against the closed-fab size (128x150) —
-    // reproduce that as an explicit target so the glide-home lands exactly where the mascot
-    // normally lives, instead of wherever flashCriticalPoint last left it.
-    moveLauncherTo(60, window.innerHeight - 56 - 150, animate);
+    // measure where the CSS default dock actually sits for the current viewport (it shifts
+    // at the mobile breakpoints) instead of hardcoding pixels that would only match desktop.
+    var saved = { left: dragLauncher.style.left, top: dragLauncher.style.top, right: dragLauncher.style.right, bottom: dragLauncher.style.bottom };
+    var wasPinned = dragLauncher.classList.contains("pinned");
+    dragLauncher.classList.remove("pinned");
+    dragLauncher.style.left = dragLauncher.style.top = dragLauncher.style.right = dragLauncher.style.bottom = "";
+    var home = dragLauncher.getBoundingClientRect();
+    var homeLeft = home.left, homeTop = home.top;
+    dragLauncher.style.left = saved.left; dragLauncher.style.top = saved.top;
+    dragLauncher.style.right = saved.right; dragLauncher.style.bottom = saved.bottom;
+    if (wasPinned) dragLauncher.classList.add("pinned");
+    moveLauncherTo(homeLeft, homeTop, animate);
     mascotTraveled = false;
     setMascot("idle");
   }
@@ -2844,13 +2903,13 @@
 
   /* ---------- action badge ---------- */
   function updateActionBadge() {
-    var b = document.getElementById("navActionBadge");
-    if (!b) return;
+    var badges = document.querySelectorAll(".nav-badge");
+    if (!badges.length) return;
     try {
       var r = compute(), p = COMPANIES[state.company];
       var n = computeActions(r, p).filter(function (a) { return a.sev === "crit" || a.sev === "warn"; }).length;
-      b.hidden = n === 0; b.textContent = n;
-    } catch (e) { b.hidden = true; }
+      badges.forEach(function (b) { b.hidden = n === 0; b.textContent = n; });
+    } catch (e) { badges.forEach(function (b) { b.hidden = true; }); }
   }
 
   /* ---------- splash ---------- */
@@ -2950,8 +3009,14 @@
       monthlyElec: 14000, monthlyGas: 6000, hedge: "none",
       taxAmount: 38000, taxWeek: 4, terms: 30,
       inv: [{ nm: "Steel bar stock 42CrMo4", tied: 62000, cover: 18, base: 2 }],
+      invFile: null, // {name, size, type} — metadata only, mock-up never parses or stores the actual file
       feeds: { bank: true, acc: true, erp: false }
     };
+  }
+  function fileSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   }
   function num(v) { v = parseFloat(String(v).replace(/[^0-9.\-]/g, "")); return isFinite(v) ? v : 0; }
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
@@ -2974,8 +3039,26 @@
       + '<div class="errmsg">Please enter a valid value.</div></div>';
   }
 
+  function invUploadHTML() {
+    if (intake.invFile) {
+      var f = intake.invFile;
+      return '<div class="upload-file">'
+        + '<div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>'
+        + '<div class="upload-copy"><div class="upload-file-name">' + esc(f.name) + '</div><div class="upload-file-size">' + fileSize(f.size) + '</div></div>'
+        + '<button type="button" class="link-btn" id="invFileRemove">Remove</button>'
+        + '</div>'
+        + '<div class="upload-note">Got it — we\'ll pull line items straight from this file once processing is live. For this preview, please still list your main item(s) below.</div>'
+        + '<div class="upload-or">or add manually</div>';
+    }
+    return '<label class="upload-drop">'
+      + '<input type="file" id="invFileInput" accept=".xlsx,.xls,.csv,.pdf" />'
+      + '<div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>'
+      + '<div class="upload-copy"><div class="upload-title">Upload a stock list instead</div><div class="upload-hint">Excel (.xlsx/.xls), CSV or PDF — skip the manual entry below</div></div>'
+      + '</label>'
+      + '<div class="upload-or">or add manually</div>';
+  }
   function invRows() {
-    return intake.inv.map(function (it, idx) {
+    return invUploadHTML() + intake.inv.map(function (it, idx) {
       return '<div class="inv-row" data-inv-row="' + idx + '">'
         + '<div class="field" style="margin:0"><label>Item ' + (idx + 1) + (idx === 0 ? " — main stock (adjustable in the dashboard)" : "") + '</label>'
         + '<div class="input"><input data-invk="nm" data-idx="' + idx + '" type="text" value="' + esc(it.nm) + '" /></div></div>'
@@ -3007,7 +3090,7 @@
     { title: "How does money move each month?", body: "Rough figures are fine for now — once you connect a bank or accounting feed later, I'll refine these automatically instead of using flat monthly averages." },
     { title: "How exposed are you to energy prices?", body: "Electricity and gas are often the most volatile cost in your forecast. I price live SMARD market swings directly against these numbers." },
     { title: "What's already coming due?", body: "Large known outflows — tax, VAT, slow-paying customers — are exactly what shifts a dip earlier or later. This is what makes the forecast <b>yours</b>, not a generic template." },
-    { title: "What stock are you sitting on?", body: "I check every reorder against the forecast, so a restock never lands right when cash is already tight." },
+    { title: "What stock are you sitting on?", body: "I check every reorder against the forecast, so a restock never lands right when cash is already tight. Got a stock list already? <b>Upload it as Excel, CSV or PDF</b> instead of typing items in one by one." },
     { title: "Last thing — take a look", body: "Here's everything that feeds the forecast, plus the option to connect real data feeds. You can change any of it later from Edit inputs." }
   ];
   function stepHTML(i) {
@@ -3049,6 +3132,16 @@
     });
     var add = b.querySelector("#invAdd");
     if (add) add.addEventListener("click", function () { intake.inv.push({ nm: "", tied: 0, cover: 0, base: 2 }); saveIntake(); renderStep(); });
+    var fileInput = b.querySelector("#invFileInput");
+    if (fileInput) fileInput.addEventListener("change", function () {
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      intake.invFile = { name: f.name, size: f.size, type: f.type };
+      saveIntake();
+      renderStep();
+    });
+    var fileRemove = b.querySelector("#invFileRemove");
+    if (fileRemove) fileRemove.addEventListener("click", function () { intake.invFile = null; saveIntake(); renderStep(); });
     b.querySelectorAll("[data-feed]").forEach(function (el) {
       el.addEventListener("change", function () { intake.feeds[el.getAttribute("data-feed")] = el.checked; saveIntake(); });
     });
