@@ -117,6 +117,10 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  /* slightly zoomed-out overall density on desktop — deliberately NOT applied under 900px:
+     it scales effective font sizes too, which would drop mobile inputs back under the 16px
+     iOS/Android auto-zoom threshold fixed above. */
+  @media (min-width: 901px) { body { zoom: 0.92; } }
   h1, h2, h3, h4 { font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif; margin: 0; letter-spacing: -0.02em; line-height: 1.12; font-weight: 700; }
   .mono { font-family: "Hanken Grotesk", sans-serif; font-variant-numeric: tabular-nums; }
   button { font-family: inherit; cursor: pointer; }
@@ -513,15 +517,34 @@
   .chat-action:hover { background: var(--accent-wash); border-color: var(--accent); transform: translateX(2px); }
   .chat-action::after { content: " →"; }
   .chat-fab {
-    position: relative; width: 128px; height: 150px; border-radius: 0; border: 0; padding: 0; cursor: grab;
+    position: relative; width: 84px; height: 98px; border-radius: 0; border: 0; padding: 0; cursor: grab;
     background: transparent; box-shadow: none;
     display: grid; place-items: center; color: #fff; transition: transform .16s ease;
   }
-  .chat-fab::after { content: ""; position: absolute; left: 50%; bottom: 8px; width: 62px; height: 16px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(0,23,72,.28), transparent 72%); z-index: 0; animation: livepulse 3s ease-out infinite; }
+  .chat-fab::after { content: ""; position: absolute; left: 50%; bottom: 6px; width: 42px; height: 11px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(0,23,72,.28), transparent 72%); z-index: 0; animation: livepulse 3s ease-out infinite; }
   .chat-fab:hover { transform: translateY(-3px) scale(1.04); }
   .chat-fab:active { cursor: grabbing; }
-  .chat-mascot-img { position: relative; z-index: 1; width: 114px; height: 133px; display: block; filter: drop-shadow(0 8px 16px rgba(0,23,72,.3)); animation: mascotBob 3.2s ease-in-out infinite; }
-  .chat-fab .chat-badge { position: absolute; top: 6px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--crit); border: 2.5px solid var(--ground); z-index: 2; }
+  .chat-mascot-img { position: relative; z-index: 1; width: 74px; height: 87px; display: block; filter: drop-shadow(0 6px 12px rgba(0,23,72,.3)); animation: mascotBob 3.2s ease-in-out infinite; }
+  .chat-fab .chat-badge { position: absolute; top: 4px; right: 0; width: 15px; height: 15px; border-radius: 50%; background: var(--crit); border: 2px solid var(--ground); z-index: 2; }
+  .chat-fab-wrap { position: relative; }
+  .chat-hide-btn {
+    position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border-strong); color: var(--ink-faint);
+    display: grid; place-items: center; opacity: 0; transition: opacity .15s, color .15s, border-color .15s; z-index: 3;
+  }
+  .chat-hide-btn svg { width: 10px; height: 10px; }
+  .chat-launcher:hover .chat-hide-btn, .chat-hide-btn:focus-visible { opacity: 1; }
+  .chat-hide-btn:hover { color: var(--crit); border-color: var(--crit); }
+  .chat-reopen {
+    position: fixed; z-index: 90; display: none; align-items: center; gap: 7px;
+    left: 60px; bottom: 56px; padding: 8px 13px 8px 10px; border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--ink-soft); box-shadow: var(--shadow-md);
+    font-family: "Hanken Grotesk", sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .chat-reopen.show { display: inline-flex; }
+  .chat-reopen img { width: 20px; height: auto; display: block; }
+  @media (max-width: 900px) { .chat-reopen { bottom: calc(74px + env(safe-area-inset-bottom)); } }
+  @media (max-width: 480px) { .chat-reopen { left: 10px; } }
   @keyframes mascotBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
   .chat-launcher.has-critical .chat-mascot-img { animation: mascotPulse 1.3s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(100,214,147,.55)); }
   @keyframes mascotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
@@ -1125,11 +1148,19 @@
     </form>
     <div class="chat-disclaimer">Mock-up assistant for this preview · answers are rule-based, not a live model</div>
   </div>
-  <button class="chat-fab" id="chatToggle" aria-label="Open AI assistant · drag to move">
-    <img class="chat-mascot-img" id="chatMascotImg" src="assets/mascot-idle.png" alt="" draggable="false">
-    <span class="chat-badge" id="chatBadge" hidden></span>
-  </button>
+  <div class="chat-fab-wrap">
+    <button class="chat-fab" id="chatToggle" aria-label="Open AI assistant · drag to move">
+      <img class="chat-mascot-img" id="chatMascotImg" src="assets/mascot-idle.png" alt="" draggable="false">
+      <span class="chat-badge" id="chatBadge" hidden></span>
+    </button>
+    <button class="chat-hide-btn" id="chatHideBtn" aria-label="Hide assistant" title="Hide assistant">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
 </div>
+<button class="chat-reopen" id="chatReopen" aria-label="Show assistant">
+  <img src="assets/mascot-idle.png" alt="">Show assistant
+</button>
 
 <script>
 (function () {
@@ -1738,6 +1769,25 @@
 
   var chatHistory = [], chatOpen = false, chatGreeted = false;
   function chatEl(id) { return document.getElementById(id); }
+  function mascotHidden() { try { return localStorage.getItem("liquibot.mascotHidden") === "1"; } catch (e) { return false; } }
+  function showMascot() {
+    // called from every spot that reveals the app shell — respects a saved "hide assistant"
+    // preference instead of unconditionally showing the launcher again.
+    if (mascotHidden()) { chatEl("chatReopen").classList.add("show"); return; }
+    chatEl("chatLauncher").hidden = false;
+    chatEl("chatReopen").classList.remove("show");
+  }
+  chatEl("chatHideBtn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    chatEl("chatLauncher").hidden = true;
+    chatEl("chatReopen").classList.add("show");
+    try { localStorage.setItem("liquibot.mascotHidden", "1"); } catch (err) {}
+  });
+  chatEl("chatReopen").addEventListener("click", function () {
+    try { localStorage.removeItem("liquibot.mascotHidden"); } catch (err) {}
+    chatEl("chatReopen").classList.remove("show");
+    chatEl("chatLauncher").hidden = false;
+  });
   function renderChat() {
     var box = chatEl("chatMsgs");
     if (!box) return;
@@ -2045,7 +2095,7 @@
           };
           var target = chartLowPointTarget(r, canvas);
           if (!target) { arrived(); return; }
-          var MW = 114, MH = 133;
+          var MW = 74, MH = 87;
           var pose = target.chartX < (target.chartWidth / 2) ? "point-left" : "point-right";
           var hand = MASCOT_HAND_FRAC[pose];
           moveLauncherTo(target.x - hand.x * MW, target.y - hand.y * MH, true);
@@ -3299,7 +3349,7 @@
   function showApp() {
     document.getElementById("ob").hidden = true;
     document.querySelector(".app").hidden = false;
-    document.getElementById("chatLauncher").hidden = false;
+    showMascot();
     syncLabels();
     setView(view); // setView defers chart creation to the next frame
   }
@@ -3341,7 +3391,7 @@
     if (_hasCustom && _si) { COMPANIES.custom = buildProfile(intake); addCustomOption(); state.company = "custom"; }
     document.getElementById("ob").hidden = true;
     document.querySelector(".app").hidden = false;
-    document.getElementById("chatLauncher").hidden = false;
+    showMascot();
     syncLabels();
     setView("forecast"); // deferred chart creation, see setView
   } else {
