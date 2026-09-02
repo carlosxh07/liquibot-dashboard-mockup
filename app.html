@@ -1,4 +1,5 @@
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LiquiBot Console</title>
 <meta name="description" content="Interactive liquidity-forecasting dashboard for a DACH SME: adjustable scenarios, risk radar, and inventory reorder timing." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -157,7 +158,12 @@
   }
   .icon-btn:hover { color: var(--chrome-ink); background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); }
   .icon-btn svg { width: 17px; height: 17px; }
-  @media (max-width: 680px) { .topbar .status, .topbar .sep { display: none; } .topbar { gap: 8px; padding: 0 14px; } .co-select { min-width: 0; max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; padding: 7px 8px; } .icon-btn { width: 34px; height: 34px; } }
+  @media (max-width: 680px) { .topbar .status, .topbar .sep { display: none; } .topbar { gap: 8px; padding: 0 14px; } .co-select { min-width: 0; max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 7px 8px; } .icon-btn { width: 34px; height: 34px; } }
+  /* iOS/Android zoom the whole page in on focus when a form control's font-size is under
+     16px — keep every text input/select at 16px on small screens so focusing one doesn't
+     trigger that (and the user having to manually zoom back out, which then desyncs the
+     mascot's position). */
+  @media (max-width: 900px) { .chat-input-row input, .input input, .input select, .co-select { font-size: 16px; } }
   @media (max-width: 420px) { .brand { font-size: 15px; } .co-select { max-width: 34vw; } #tourBtn { display: none; } }
 
   /* ---------- shell + sidebar (dark chrome) ---------- */
