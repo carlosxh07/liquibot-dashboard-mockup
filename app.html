@@ -117,10 +117,9 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  /* slightly zoomed-out overall density on desktop — deliberately NOT applied under 900px:
-     it scales effective font sizes too, which would drop mobile inputs back under the 16px
-     iOS/Android auto-zoom threshold fixed above. */
-  @media (min-width: 901px) { body { zoom: 0.92; } }
+  /* NB: no page-level `zoom` here. CSS `zoom` makes getBoundingClientRect() return
+     visually-scaled coords while inline `style.left/top` stay in unscaled px — that
+     mismatch broke the assistant's travel-to-chart-point, its return-home, and drag. */
   h1, h2, h3, h4 { font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif; margin: 0; letter-spacing: -0.02em; line-height: 1.12; font-weight: 700; }
   .mono { font-family: "Hanken Grotesk", sans-serif; font-variant-numeric: tabular-nums; }
   button { font-family: inherit; cursor: pointer; }
@@ -1861,8 +1860,10 @@
   }
   function clampLauncherToViewport() {
     var l = chatEl("chatLauncher");
-    if (!l) return;
-    pinToExplicitPos(); // convert the CSS-default docked position to explicit coords so it can be clamped too
+    if (!l || !userMoved) return; // still on its CSS dock — let CSS keep it there (the panel
+                                  // opens upward from the bottom-anchored dock on its own).
+                                  // Only clamp once the user has actually dragged it somewhere.
+    pinToExplicitPos(); // convert the dragged position to explicit coords so it can be clamped too
     requestAnimationFrame(function () {
       var r = l.getBoundingClientRect();
       var nx = Math.max(8, Math.min(parseFloat(l.style.left), window.innerWidth - r.width - 8));
@@ -1928,7 +1929,7 @@
 
   /* ---------- drag + mascot travel ---------- */
   var dragLauncher = chatEl("chatLauncher"), dragFab = chatEl("chatToggle");
-  var dragPinned = false;
+  var dragPinned = false, userMoved = false; // userMoved: the human has dragged the launcher off its dock
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
   function pinToExplicitPos() {
     if (!dragLauncher) return;
@@ -1967,7 +1968,7 @@
     function onMove(e) {
       if (!dragging) return;
       var dx = e.clientX - startX, dy = e.clientY - startY;
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; hideChatBubble(false); }
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; userMoved = true; hideChatBubble(false); }
       var r = dragLauncher.getBoundingClientRect();
       dragLauncher.style.left = clamp(origX + dx, 8, window.innerWidth - r.width - 8) + "px";
       dragLauncher.style.top = clamp(origY + dy, 8, window.innerHeight - r.height - 8) + "px";
@@ -2037,8 +2038,21 @@
     });
   }
   function sendMascotHome(animate) {
-    // measure where the CSS default dock actually sits for the current viewport (it shifts
-    // at the mobile breakpoints) instead of hardcoding pixels that would only match desktop.
+    if (!userMoved) {
+      // never dragged by the human — just drop the inline coords and let it snap back onto
+      // its CSS dock (bottom-left, breakpoint-correct). No measuring, no drift.
+      if (animate && !reduceMotion()) {
+        dragLauncher.classList.add("traveling");
+        setTimeout(function () { dragLauncher.classList.remove("traveling"); }, 650);
+      }
+      dragLauncher.classList.remove("pinned");
+      dragLauncher.style.left = dragLauncher.style.top = dragLauncher.style.right = dragLauncher.style.bottom = "";
+      dragPinned = false;
+      mascotTraveled = false;
+      setMascot("idle");
+      return;
+    }
+    // dragged case: measure where the CSS dock sits for this viewport and glide back to it.
     var saved = { left: dragLauncher.style.left, top: dragLauncher.style.top, right: dragLauncher.style.right, bottom: dragLauncher.style.bottom };
     var wasPinned = dragLauncher.classList.contains("pinned");
     dragLauncher.classList.remove("pinned");
@@ -2102,21 +2116,26 @@
           mascotTraveled = true;
           setMascot(pose);
           setTimeout(function () {
-            // self-correcting pass: measure exactly where the fingertip rendered (this
-            // accounts for the button's own centering padding and any residual drift) and
-            // nudge the launcher so it lands precisely on the point, instead of trusting
-            // the up-front estimate alone.
-            var img = chatEl("chatMascotImg"), fresh = chartLowPointTarget(r, canvas);
-            if (img && fresh) {
-              var ir = img.getBoundingClientRect();
-              var fingerX = ir.left + hand.x * ir.width, fingerY = ir.top + hand.y * ir.height;
-              var dx = fresh.x - fingerX, dy = fresh.y - fingerY;
-              if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-                dragLauncher.style.left = (parseFloat(dragLauncher.style.left) + dx) + "px";
-                dragLauncher.style.top = (parseFloat(dragLauncher.style.top) + dy) + "px";
+            // self-correcting pass: measure where the fingertip actually rendered and nudge
+            // the launcher onto the point. Iterated a few times because on slower devices the
+            // view-switch layout keeps settling for a bit and one nudge leaves it short.
+            dragLauncher.classList.remove("traveling"); // no transition — corrections must be instant
+            var tries = 0;
+            (function correct() {
+              var img = chatEl("chatMascotImg"), fresh = chartLowPointTarget(r, canvas);
+              if (img && fresh) {
+                var ir = img.getBoundingClientRect();
+                var dx = fresh.x - (ir.left + hand.x * ir.width);
+                var dy = fresh.y - (ir.top + hand.y * ir.height);
+                var curL = parseFloat(dragLauncher.style.left), curT = parseFloat(dragLauncher.style.top);
+                if (isFinite(curL) && isFinite(curT) && (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5)) {
+                  dragLauncher.style.left = (curL + dx) + "px";
+                  dragLauncher.style.top = (curT + dy) + "px";
+                  if (++tries < 5) { requestAnimationFrame(correct); return; }
+                }
               }
-            }
-            arrived();
+              arrived();
+            })();
           }, reduceMotion() ? 0 : 620); // wait for the .traveling glide to finish
         }, 80);
       });
