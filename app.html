@@ -525,15 +525,15 @@
   .chat-fab:hover { transform: translateY(-3px) scale(1.04); }
   .chat-fab:active { cursor: grabbing; }
   .chat-mascot-img { position: relative; z-index: 1; width: 74px; height: 87px; display: block; filter: drop-shadow(0 6px 12px rgba(0,23,72,.3)); animation: mascotBob 3.2s ease-in-out infinite; }
-  .chat-fab .chat-badge { position: absolute; top: 4px; right: 0; width: 15px; height: 15px; border-radius: 50%; background: var(--crit); border: 2px solid var(--ground); z-index: 2; }
+  .chat-fab .chat-badge { position: absolute; top: 4px; right: 0; width: 15px; height: 15px; border-radius: 50%; background: var(--crit); border: 2px solid var(--ground); z-index: 2; pointer-events: none; }
   .chat-fab-wrap { position: relative; }
   .chat-hide-btn {
-    position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; border-radius: 50%;
+    position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%;
     background: var(--surface); border: 1px solid var(--border-strong); color: var(--ink-faint);
-    display: grid; place-items: center; opacity: 0; transition: opacity .15s, color .15s, border-color .15s; z-index: 3;
+    display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .15s, color .15s, border-color .15s; z-index: 3;
   }
   .chat-hide-btn svg { width: 10px; height: 10px; }
-  .chat-launcher:hover .chat-hide-btn, .chat-hide-btn:focus-visible { opacity: 1; }
+  .chat-launcher:hover .chat-hide-btn, .chat-hide-btn:focus-visible { opacity: 1; pointer-events: auto; }
   .chat-hide-btn:hover { color: var(--crit); border-color: var(--crit); }
   .chat-reopen {
     position: fixed; z-index: 90; display: none; align-items: center; gap: 7px;
@@ -1967,7 +1967,7 @@
     function onMove(e) {
       if (!dragging) return;
       var dx = e.clientX - startX, dy = e.clientY - startY;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) { moved = true; hideChatBubble(false); }
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; hideChatBubble(false); }
       var r = dragLauncher.getBoundingClientRect();
       dragLauncher.style.left = clamp(origX + dx, 8, window.innerWidth - r.width - 8) + "px";
       dragLauncher.style.top = clamp(origY + dy, 8, window.innerHeight - r.height - 8) + "px";
