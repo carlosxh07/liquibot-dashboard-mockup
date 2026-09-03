@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiquiBot Paket-Radar</title>
+<meta name="description" content="Internes Vertriebswerkzeug: Paketempfehlung und Deal-Ökonomie je Kundenprofil.">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+<style>
+:root{
+  /* brand */
+  --brand-navy:#001748; --brand-mint:#64D693;
+
+  /* light canvas — mirrors app.html's design system */
+  --bg:#EBEEF4; --surface:#FFFFFF; --surface-2:#F4F6FA; --surface-3:#EEF1F6;
+  --line:#E4E8F0; --line-strong:#D2D9E4;
+  --ink:#0A1B3D; --ink-2:#53607C; --ink-3:#8A94A8;
+  --accent:#001748; --accent-ink:#FFFFFF; --accent-soft:#EAEEF5;
+  --mint:#1FA968; --mint-bright:#64D693; --mint-wash:rgba(100,214,147,.16);
+
+  --t1:#C9D3E3; --t2:#64D693; --t3:#001748;
+  --t1-ink:#0A1B3D; --t2-ink:#001748; --t3-ink:#FFFFFF;
+  --t1-wash:#EEF1F6; --t2-wash:rgba(100,214,147,.16); --t3-wash:rgba(0,23,72,.08);
+
+  --warn:#C07A12; --warn-wash:rgba(192,122,18,.14);
+  --crit:#DE4B44; --crit-wash:rgba(222,75,68,.13);
+  --shadow:0 2px 8px rgba(10,27,61,.05), 0 16px 34px -18px rgba(10,27,61,.22);
+  --r:13px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#01091F; --surface:#051530; --surface-2:#0A1E3E; --surface-3:#030F26;
+    --line:#122D53; --line-strong:#21426F;
+    --ink:#EAF1FD; --ink-2:#9DB0CE; --ink-3:#6579A0;
+    --accent:#64D693; --accent-ink:#011024; --accent-soft:rgba(100,214,147,.12);
+    --mint:#6FDCA0; --mint-bright:#64D693; --mint-wash:rgba(100,214,147,.16);
+
+    --t1:#2A3B5E; --t2:#64D693; --t3:#9CC6FF;
+    --t1-ink:#EAF1FD; --t2-ink:#011024; --t3-ink:#011024;
+    --t1-wash:#0A1E3E; --t2-wash:rgba(100,214,147,.16); --t3-wash:rgba(156,198,255,.14);
+
+    --warn:#E0A44B; --warn-wash:rgba(224,164,75,.16);
+    --crit:#F0736D; --crit-wash:rgba(240,115,109,.16);
+    --shadow:0 2px 8px rgba(0,0,0,.4), 0 18px 40px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#01091F; --surface:#051530; --surface-2:#0A1E3E; --surface-3:#030F26;
+  --line:#122D53; --line-strong:#21426F;
+  --ink:#EAF1FD; --ink-2:#9DB0CE; --ink-3:#6579A0;
+  --accent:#64D693; --accent-ink:#011024; --accent-soft:rgba(100,214,147,.12);
+  --mint:#6FDCA0; --mint-bright:#64D693; --mint-wash:rgba(100,214,147,.16);
+
+  --t1:#2A3B5E; --t2:#64D693; --t3:#9CC6FF;
+  --t1-ink:#EAF1FD; --t2-ink:#011024; --t3-ink:#011024;
+  --t1-wash:#0A1E3E; --t2-wash:rgba(100,214,147,.16); --t3-wash:rgba(156,198,255,.14);
+
+  --warn:#E0A44B; --warn-wash:rgba(224,164,75,.16);
+  --crit:#F0736D; --crit-wash:rgba(240,115,109,.16);
+  --shadow:0 2px 8px rgba(0,0,0,.4), 0 18px 40px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  font-size:14px; line-height:1.5; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Bricolage Grotesque", "Hanken Grotesk", sans-serif; font-weight:700; margin:0; text-wrap:balance; letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1280px; margin:0 auto; padding:0 24px 64px}
+
+/* ---------- back link ---------- */
+.backbar{background:var(--brand-navy); color:#EDF3FC}
+.back-in{max-width:1280px; margin:0 auto; padding:11px 24px; display:flex; align-items:center}
+.back-link{
+  display:inline-flex; align-items:center; gap:7px; color:#AEC0E0; text-decoration:none;
+  font-size:12.5px; font-weight:500; transition:color .12s;
+}
+.back-link:hover{color:#fff}
+.back-link svg{width:14px; height:14px; flex:none}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--line); background:var(--surface)}
+.head-in{max-width:1280px; margin:0 auto; padding:22px 24px 20px; display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; justify-content:space-between}
+.brand{display:flex; align-items:baseline; gap:12px}
+.brand h1{font-size:26px; font-weight:800}
+.brand .dot{width:9px; height:9px; border-radius:50%; background:var(--mint-bright); display:inline-block; transform:translateY(-3px)}
+.kicker{font-family:"IBM Plex Mono", monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.head-meta{display:flex; gap:26px; flex-wrap:wrap}
+.head-meta div{display:flex; flex-direction:column; gap:2px}
+.head-meta b{font-family:"IBM Plex Mono", monospace; font-size:13px; font-weight:500; color:var(--ink)}
+
+/* ---------- sector rail ---------- */
+.sector-bar{background:var(--surface-2); border-bottom:1px solid var(--line)}
+.sector-in{max-width:1280px; margin:0 auto; padding:14px 24px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.sector-in > .kicker{margin-right:6px}
+.sec{
+  border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-2);
+  border-radius:999px; padding:7px 14px; cursor:pointer; font:inherit; font-size:13px;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.sec:hover{border-color:var(--mint-bright); color:var(--ink)}
+.sec[aria-pressed="true"]{background:var(--brand-navy); border-color:var(--brand-navy); color:#fff; font-weight:600}
+:root[data-theme="dark"] .sec[aria-pressed="true"], @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sec[aria-pressed="true"]{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}}
+:root[data-theme="dark"] .sec[aria-pressed="true"]{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}
+
+/* ---------- layout ---------- */
+.cols{display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:28px; align-items:start; padding-top:26px}
+@media (max-width:1020px){ .cols{grid-template-columns:minmax(0,1fr)} }
+
+.sector-note{
+  display:flex; gap:14px; padding:14px 16px; border-radius:var(--r);
+  background:var(--surface); border:1px solid var(--line); margin-bottom:20px;
+}
+.sector-note .bar{width:3px; border-radius:2px; background:var(--mint-bright); flex:none}
+.sector-note p{margin:0; color:var(--ink-2); font-size:13px; max-width:66ch}
+.sector-note b{color:var(--ink); font-weight:600}
+
+/* ---------- criteria ---------- */
+.crit{border-top:1px solid var(--line); padding:14px 0 15px; display:grid; grid-template-columns:212px minmax(0,1fr); gap:20px}
+.crit:first-of-type{border-top:none}
+@media (max-width:620px){ .crit{grid-template-columns:minmax(0,1fr); gap:8px} }
+.crit-name{display:flex; flex-direction:column; gap:3px}
+.crit-name .n{font-weight:600; font-size:14px; display:flex; align-items:baseline; gap:8px}
+.crit-name .w{font-family:"IBM Plex Mono", monospace; font-size:10.5px; color:var(--ink-3); border:1px solid var(--line); border-radius:4px; padding:0 4px; flex:none}
+.crit-name .h{font-size:12px; color:var(--ink-3)}
+.opts{display:flex; gap:6px; flex-wrap:wrap}
+.opt{
+  border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-2);
+  border-radius:7px; padding:6px 11px; cursor:pointer; font:inherit; font-size:12.5px;
+  font-family:"IBM Plex Mono", monospace; transition:background .12s, color .12s, border-color .12s;
+}
+.opt:hover{border-color:var(--mint-bright)}
+.opt[aria-pressed="true"]{background:var(--brand-navy); border-color:var(--brand-navy); color:#FFF; font-weight:500}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .opt[aria-pressed="true"]{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}}
+:root[data-theme="dark"] .opt[aria-pressed="true"]{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}
+.detail{font-size:12.5px; color:var(--ink-2); margin-top:7px; max-width:64ch}
+.detail.gate{color:var(--warn)}
+
+button:focus-visible, .sec:focus-visible, .back-link:focus-visible{outline:2px solid var(--mint-bright); outline-offset:2px; border-radius:4px}
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px 22px; box-shadow:var(--shadow)}
+.panel + .panel{margin-top:20px}
+.panel > h2{font-size:12px; font-family:"IBM Plex Mono", monospace; font-weight:500; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); margin-bottom:14px}
+
+/* ---------- result rail ---------- */
+.rail{position:sticky; top:16px; display:flex; flex-direction:column; gap:16px}
+@media (max-width:1020px){ .rail{position:static} }
+
+.verdict{border-radius:var(--r); border:1px solid var(--line); overflow:hidden; box-shadow:var(--shadow); background:var(--surface)}
+.verdict-top{padding:18px 20px 16px; display:flex; flex-direction:column; gap:2px; border-left:4px solid var(--tier)}
+.verdict .lbl{font-family:"IBM Plex Mono", monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.verdict h2{font-family:"Bricolage Grotesque", sans-serif; font-size:27px; font-weight:800; line-height:1.1; margin-top:4px}
+.price{font-family:"IBM Plex Mono", monospace; font-size:15px; color:var(--ink-2); margin-top:6px}
+.price b{color:var(--ink); font-weight:600; font-size:19px}
+
+/* meter */
+.meter-box{padding:16px 20px 18px; border-top:1px solid var(--line)}
+.meter{position:relative; height:26px; border-radius:6px; overflow:hidden; display:flex; border:1px solid var(--line)}
+.zone{height:100%}
+.z1{background:var(--t1-wash); flex:0 0 35%}
+.z2{background:var(--t2-wash); flex:0 0 30%}
+.z3{background:var(--t3-wash); flex:1}
+.pin{position:absolute; top:-3px; bottom:-3px; width:3px; border-radius:2px; background:var(--ink); transform:translateX(-1.5px)}
+.meter-ticks{display:flex; margin-top:6px; font-family:"IBM Plex Mono", monospace; font-size:10.5px; color:var(--ink-3)}
+.meter-ticks span{flex:0 0 35%}
+.meter-ticks span:nth-child(2){flex:0 0 30%; text-align:center}
+.meter-ticks span:last-child{flex:1; text-align:right}
+.score-line{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px}
+.score-line .big{font-family:"Bricolage Grotesque", sans-serif; font-size:30px; font-weight:800; letter-spacing:-.03em}
+.score-line .cap{font-size:12px; color:var(--ink-3)}
+
+/* flags */
+.flags{display:flex; flex-direction:column; gap:8px}
+.flag{display:flex; gap:9px; padding:9px 11px; border-radius:8px; font-size:12.5px; line-height:1.45; border:1px solid transparent}
+.flag .ico{font-family:"IBM Plex Mono", monospace; font-weight:600; flex:none}
+.flag.gate{background:var(--t2-wash); border-color:var(--line); color:var(--ink-2)}
+.flag.gate .ico{color:var(--mint)}
+.flag.warn{background:var(--warn-wash); border-color:var(--warn); color:var(--ink)}
+.flag.warn .ico{color:var(--warn)}
+.flag.crit{background:var(--crit-wash); border-color:var(--crit); color:var(--ink)}
+.flag.crit .ico{color:var(--crit)}
+.flag b{font-weight:600}
+
+/* econ */
+.econ{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.econ div{background:var(--surface); padding:11px 13px}
+.econ .k{font-size:11px; color:var(--ink-3); display:block; margin-bottom:2px}
+.econ .v{font-family:"IBM Plex Mono", monospace; font-size:15px; font-weight:600}
+.econ small{display:block; font-size:10.5px; color:var(--ink-3); margin-top:2px; font-family:"IBM Plex Mono", monospace}
+
+/* drivers */
+.driver{display:grid; grid-template-columns:1fr auto; gap:4px 10px; padding:7px 0; border-top:1px dotted var(--line)}
+.driver:first-of-type{border-top:none}
+.driver .dn{font-size:12.5px}
+.driver .dv{font-family:"IBM Plex Mono", monospace; font-size:11.5px; color:var(--ink-3)}
+.track{grid-column:1/-1; height:5px; border-radius:3px; background:var(--surface-3); overflow:hidden}
+.fill{height:100%; border-radius:3px; background:var(--mint-bright)}
+.fill.low{background:var(--t1)}
+
+/* table */
+.cmp{width:100%; border-collapse:collapse; font-size:12.5px}
+.cmp th, .cmp td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+.cmp thead th{font-family:"IBM Plex Mono", monospace; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); font-weight:500}
+.cmp td:first-child{color:var(--ink-2); width:30%}
+.cmp .pick{background:var(--t2-wash)}
+.cmp .pr{font-family:"IBM Plex Mono", monospace; font-weight:600; font-size:14px}
+.tblwrap{overflow-x:auto}
+
+.actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
+.btn{border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); border-radius:7px; padding:8px 14px; font:inherit; font-size:13px; cursor:pointer}
+.btn:hover{border-color:var(--mint-bright)}
+.btn.primary{background:var(--brand-navy); color:#fff; border-color:var(--brand-navy)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}}
+:root[data-theme="dark"] .btn.primary{background:var(--mint-bright); border-color:var(--mint-bright); color:#011024}
+
+footer{margin-top:36px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink-3); font-size:12px; max-width:78ch}
+footer p{margin:0 0 8px}
+footer b{color:var(--ink-2)}
+</style>
+
+<div class="backbar">
+  <div class="back-in">
+    <a class="back-link" href="app.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Zurück zum Dashboard
+    </a>
+  </div>
+</div>
+
+<header>
+  <div class="head-in">
+    <div>
+      <div class="kicker">LiquiBot · Vertriebswerkzeug · intern</div>
+      <div class="brand"><h1>Paket-Radar</h1><span class="dot"></span></div>
+    </div>
+    <div class="head-meta">
+      <div><span class="kicker">Starter</span><b>119,99 €</b></div>
+      <div><span class="kicker">Business</span><b>299,99 €</b></div>
+      <div><span class="kicker">Enterprise</span><b>599,99 €</b></div>
+      <div><span class="kicker">Blended ARPU</span><b>278,99 €</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="sector-bar"><div class="sector-in" id="sectors"><span class="kicker">Branche</span></div></div>
+
+<div class="wrap">
+  <div class="cols">
+    <main>
+      <div class="sector-note"><div class="bar"></div><p id="sectorNote"></p></div>
+      <div class="panel">
+        <h2>Kundenprofil · 11 Kriterien</h2>
+        <div id="form"></div>
+      </div>
+      <div class="panel">
+        <h2>Paketabgrenzung</h2>
+        <div class="tblwrap"><table class="cmp" id="cmp"></table></div>
+        <p style="font-size:12px;color:var(--ink-3);margin:12px 0 0">
+          Vorschlag zur Differenzierung. Im aktuellen Deck (Slide 10) unterscheiden sich die Tarife nur im Preis –
+          das ist der offene Punkt, den diese Spalten schließen sollen. Noch nicht kundenvalidiert.
+        </p>
+      </div>
+    </main>
+
+    <aside class="rail">
+      <div class="verdict">
+        <div class="verdict-top" id="verdictTop">
+          <span class="lbl">Empfehlung</span>
+          <h2 id="tierName">—</h2>
+          <div class="price"><b id="tierPrice">—</b> / Monat, netto</div>
+        </div>
+        <div class="meter-box">
+          <div class="score-line">
+            <span class="big mono" id="scoreVal">0</span>
+            <span class="cap">Bedarfs-Score von 100</span>
+          </div>
+          <div class="meter" id="meter">
+            <div class="zone z1"></div><div class="zone z2"></div><div class="zone z3"></div>
+            <div class="pin" id="pin" style="left:0%"></div>
+          </div>
+          <div class="meter-ticks"><span>Starter</span><span>Business</span><span>Enterprise</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Warum dieses Paket</h2>
+        <div class="flags" id="flags"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Deal-Ökonomie</h2>
+        <div class="econ" id="econ"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Score-Treiber</h2>
+        <div id="drivers"></div>
+        <div class="actions">
+          <button class="btn primary" id="copyBtn">Zusammenfassung kopieren</button>
+          <button class="btn" id="resetBtn">Beispielprofil</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <p><b>Wie gerechnet wird.</b> Jedes der zehn Bedarfskriterien wird auf 0–3 Punkte gestuft und mit einem
+    branchenspezifischen Gewicht (×0,5 bis ×2,0) multipliziert. Die Summe wird auf 100 normiert:
+    unter 35 → Starter, 35 bis 64 → Business, ab 65 → Enterprise. Das <b>Budget</b> geht bewusst nicht in den
+    Bedarfs-Score ein – es entscheidet nicht, was der Kunde braucht, sondern ob er es sich leistet, und wird
+    deshalb getrennt als Budget-Check geprüft. Zusätzlich heben harte Regeln (ERP-Anbindung, Mehrwährung,
+    Standortzahl, Sicherheitsanforderung) das Mindestpaket an, unabhängig vom Score.</p>
+    <p><b>Datenstand.</b> Preise 119,99 / 299,99 / 599,99 € netto, Bruttomarge 75 %, Blended ARPU 278,99 €
+    (Mix 45/35/20) aus dem Finanzmodell v67. Insolvenzhäufigkeiten: Destatis 2025, Fälle je 10.000 Betriebe.
+    ICP laut Kontextpapier: DACH-KMU bis 200 Mitarbeiter ohne eigene Finanzabteilung.
+    „Manufacturing industry" und „Manufacturing sector" aus der Sektorliste sind hier zu einem Eintrag
+    „Produzierendes Gewerbe" zusammengeführt – der Doppeleintrag war als offener Punkt vermerkt.</p>
+  </footer>
+</div>
+
+<script>
+const CRIT = [
+  {id:'daten', name:'Datenmenge', hint:'Belege & Buchungen pro Monat',
+   o:['< 100','100–500','500–2.000','> 2.000'],
+   d:['Buchhaltung passt in eine Tabelle. Forecast läuft über Kontosalden.',
+      'Regelmäßiger Belegfluss, Kategorisierung noch händisch machbar.',
+      'Automatische Kategorisierung wird zum Kaufgrund – manuelle Pflege kippt hier.',
+      'Ohne Regelwerk und Anomalie-Erkennung nicht mehr beherrschbar.']},
+  {id:'ma', name:'Mitarbeiter', hint:'Vollzeitäquivalente',
+   o:['1–9','10–24','25–99','100–200','> 200'], p:[0,1,2,3,3],
+   d:['Inhabergeführt. Personalkosten sind planbar, Liquiditätsdruck kommt von außen.',
+      'Erste Führungsebene, Lohnlauf wird zum größten Einzelabfluss.',
+      'Personalkosten dominieren den Cash-Abfluss – Szenarien pro Einstellung nötig.',
+      'Obere Grenze des Zielprofils. Häufig bereits ein Controlling-Ansatz vorhanden.',
+      'Außerhalb des Zielkundenprofils (bis 200 MA). Eigene Freigabe erforderlich.']},
+  {id:'umsatz', name:'Umsatz', hint:'Jahresumsatz',
+   o:['< 1 Mio. €','1–5 Mio. €','5–20 Mio. €','> 20 Mio. €'],
+   d:['Einzelne Großaufträge verschieben die Liquidität spürbar.',
+      'Klassisches KMU-Profil. Kernzielgruppe für Starter und Business.',
+      'Mehrere Kostenstellen, Bankgespräche mit Kennzahlenanforderung.',
+      'Reporting-Anspruch nähert sich dem eines eigenen Controllings.']},
+  {id:'expansion', name:'Zukunftsflächen', hint:'geplante Expansion in 24 Monaten',
+   o:['keine','organisch','neue Fläche / Standort','Ausland oder M&A'],
+   d:['Status quo. Forecast dient der Absicherung, nicht der Planung.',
+      'Wachstum aus dem Bestand, keine Sprunginvestition geplant.',
+      'Neue Fläche, Halle oder Filiale: Investition und Anlaufkosten müssen im Forecast liegen.',
+      'Auslandsexpansion oder Zukauf – Mehr-Entitäten-Sicht und Szenarien werden Pflicht.']},
+  {id:'inventar', name:'Inventargrößen', hint:'Lagerwert / Artikelzahl',
+   o:['kein Lager','< 100 T€','100 T€ – 1 Mio. €','> 1 Mio. €'],
+   d:['Dienstleistung ohne Bestand. Lagermodul ohne Nutzen.',
+      'Kleines Materiallager, kaum Kapitalbindung.',
+      'Spürbare Kapitalbindung. Hier beginnt der eigentliche LiquiBot-Vorteil: Bestand → Cash.',
+      'Das Working Capital liegt im Lager. Ohne Bestandsanbindung ist der Forecast falsch.']},
+  {id:'standorte', name:'Standorte', hint:'Betriebsstätten & Rechtseinheiten',
+   o:['1','2–3','4–10','> 10'],
+   d:['Eine Einheit, ein Kontenkreis.',
+      'Mehrere Betriebsstätten, meist noch eine Rechtseinheit.',
+      'Konsolidierung über mehrere Einheiten wird zur Anforderung.',
+      'Filial- oder Depotnetz. Rollen, Rechte und Konsolidierung auf Enterprise-Niveau.']},
+  {id:'transaktionen', name:'Transaktionsvolumen', hint:'Zahlungsvorgänge/Monat · Bankkonten',
+   o:['< 250 · 1 Konto','250–1.000 · 2–3','1.000–5.000 · 4–8','> 5.000 · > 8'],
+   d:['Überschaubarer Zahlungsverkehr, ein Hauptkonto.',
+      'Mehrere Konten, Abgleich kostet bereits Zeit.',
+      'Kontoanzahl treibt die direkten Stückkosten (Aggregator je Konto).',
+      'Hohes Volumen: Kontolimit des Starter-Pakets ist überschritten.']},
+  {id:'waehrung', name:'Währung', hint:'Fremdwährungsanteil',
+   o:['nur EUR','EUR + 1, gelegentlich','2–3, regelmäßig','> 3 / FX-Sicherung'],
+   d:['Keine Wechselkurswirkung im Forecast.',
+      'Vereinzelte Fremdwährungsrechnungen, Kurseffekt vernachlässigbar.',
+      'Kursbewegungen verschieben die Liquidität messbar – Mehrwährungs-Forecast nötig.',
+      'Aktives Kursmanagement. Sicherungsgeschäfte müssen im Modell abbildbar sein.']},
+  {id:'erp', name:'ERP-/Betriebssysteme', hint:'vorhandene Systemlandschaft',
+   o:['Excel / DATEV','Cloud-Buchhaltung','Mittelstands-ERP','Legacy / Mehrsystem'],
+   d:['Kein ERP. Bankanbindung reicht, Einführung ist schnell.',
+      'lexoffice, sevDesk, Zoho o. ä. – Standard-API, geringer Aufwand.',
+      'Odoo, Xentral, Weclapp, Business Central, Sage: Auftrags- und Lagerdaten sind abrufbar.',
+      'SAP ECC, altes Navision, Branchen-ERP oder mehrere Systeme parallel – Custom-Schnittstelle.']},
+  {id:'sicherheit', name:'Sicherheit', hint:'Compliance-Anforderungen',
+   o:['Standard DSGVO','AV-Vertrag, MFA','SSO, Rollen, Audit-Log','ISO 27001 / TISAX'],
+   d:['Keine Sonderanforderungen über die Standardverarbeitung hinaus.',
+      'Auftragsverarbeitung, Löschfristen, Mehrfaktor-Anmeldung.',
+      'Zentrale Identität, Rechtekonzept und Protokollierung werden geprüft.',
+      'Zertifizierungsnachweis, Pen-Test-Bericht, eigene DPA-Verhandlung. Bei Automotive-Zulieferern Standard.']}
+];
+
+const BUDGET = {name:'Budget', hint:'für Finanzsoftware pro Monat',
+  o:['unbekannt','< 120 €','120–299 €','300–599 €','≥ 600 €'],
+  cap:[null, 0, 119.99, 299.99, 599.99],
+  d:['Noch nicht erhoben. Vor dem Angebot klären – Budget ist der häufigste späte Abbruchgrund.',
+     'Unter dem Einstiegspreis. Nur mit Jahresvorauszahlung oder Pilotpreis darstellbar.',
+     'Deckt Starter. Business nur über nachgewiesenen Nutzen.',
+     'Deckt Business. Enterprise erfordert Begründung über Standorte, ERP oder Compliance.',
+     'Deckt alle Pakete. Preis ist nicht der Engpass – Nutzen argumentieren, nicht Rabatt.']};
+
+const SECTORS = [
+ {id:'handwerk', name:'Handwerk & Bau',
+  w:{daten:1,ma:1.5,umsatz:1,expansion:1,inventar:1,standorte:.5,transaktionen:1,waehrung:.5,erp:1.5,sicherheit:.5},
+  note:'<b>Bau: 104 Insolvenzen je 10.000 Betriebe</b> (Destatis 2025) – drittriskanteste Branche in Deutschland. Der Hebel ist das Auftragsbuch, nicht das Lager: Abschlagsrechnungen, Nachträge und Zahlungsziele bestimmen die Liquidität. Personalkosten sind der größte Abfluss, deshalb wiegt die Mitarbeiterzahl hier schwer.',
+  pre:{daten:2,ma:2,umsatz:2,expansion:2,inventar:1,standorte:1,transaktionen:1,waehrung:0,erp:2,sicherheit:1,budget:3}},
+ {id:'logistik', name:'Logistik & Transport',
+  w:{daten:1.5,ma:1,umsatz:1,expansion:1,inventar:.5,standorte:1.5,transaktionen:2,waehrung:1.5,erp:1.5,sicherheit:1},
+  note:'<b>Verkehr & Lagerei: 133 Insolvenzen je 10.000 Betriebe</b> – die riskanteste Branche in Deutschland. Maut, Diesel und Fremdfracht gehen in Vorleistung, während Verlader lange Zahlungsziele setzen. Hohe Belegzahl, viele Konten, Cross-Border-Währungen – Transaktionsvolumen ist hier das schwerste Kriterium.',
+  pre:{daten:2,ma:2,umsatz:2,expansion:1,inventar:1,standorte:2,transaktionen:3,waehrung:2,erp:2,sicherheit:1,budget:4}},
+ {id:'gastro', name:'Gastgewerbe',
+  w:{daten:1.5,ma:1.5,umsatz:1,expansion:1,inventar:1,standorte:1.5,transaktionen:2,waehrung:.5,erp:1,sicherheit:.5},
+  note:'<b>Gastgewerbe: 108 Insolvenzen je 10.000 Betriebe</b> – zweitriskanteste Branche. Achtung im Vertrieb: kein Auftragsbuch, die Prognose läuft über Kassen- und Buchungsdaten. Damit fehlt der stärkste LiquiBot-Differenzierer, und die Preisbereitschaft liegt niedriger als in den anderen Sektoren.',
+  pre:{daten:2,ma:2,umsatz:1,expansion:1,inventar:1,standorte:1,transaktionen:2,waehrung:0,erp:1,sicherheit:0,budget:2}},
+ {id:'produktion', name:'Produzierendes Gewerbe',
+  w:{daten:1.5,ma:1,umsatz:1.5,expansion:1,inventar:2,standorte:1,transaktionen:1,waehrung:1.5,erp:2,sicherheit:1},
+  note:'Das Working Capital sitzt im Lager und in der Fertigungstiefe. Hier ist die ERP- und Bestandsanbindung <b>der Kaufgrund, nicht ein Zusatz</b> – ohne sie ist der Forecast systematisch falsch. Einkauf häufig in Fremdwährung. Zusammengeführt aus „Manufacturing industry" und „Manufacturing sector".',
+  pre:{daten:2,ma:2,umsatz:2,expansion:1,inventar:3,standorte:1,transaktionen:2,waehrung:2,erp:2,sicherheit:1,budget:4}},
+ {id:'retail', name:'Einzelhandel',
+  w:{daten:1.5,ma:1,umsatz:1,expansion:1.5,inventar:2,standorte:2,transaktionen:2,waehrung:1,erp:1.5,sicherheit:1},
+  note:'Bestandskapital, Saisonalität und Filialnetz treffen zusammen – Standortzahl und Lagerwert wiegen deshalb am schwersten. <b>Agicap bespielt diesen Sektor bereits mit eigener Landingpage</b>, die Differenzierung muss über die Bestandsanbindung laufen, nicht über „KI".',
+  pre:{daten:3,ma:2,umsatz:2,expansion:2,inventar:2,standorte:2,transaktionen:3,waehrung:1,erp:2,sicherheit:1,budget:4}},
+ {id:'automotive', name:'Automotive',
+  w:{daten:1,ma:1,umsatz:1.5,expansion:1,inventar:2,standorte:1,transaktionen:1,waehrung:1.5,erp:1.5,sicherheit:1.5},
+  note:'Fahrzeug- und Teilebestand bindet das meiste Kapital pro Umsatzeuro aller sechs Sektoren. Bei Zulieferern ist <b>TISAX faktisch Eintrittskarte</b> – die Sicherheitsanforderung allein trägt den Kunden ins Enterprise-Paket, unabhängig von seiner Größe.',
+  pre:{daten:2,ma:2,umsatz:2,expansion:1,inventar:3,standorte:1,transaktionen:2,waehrung:1,erp:2,sicherheit:3,budget:4}}
+];
+
+const TIERS = [
+  {name:'Starter', price:119.99, v:'--t1'},
+  {name:'Business', price:299.99, v:'--t2'},
+  {name:'Enterprise', price:599.99, v:'--t3'}
+];
+
+const FEATURES = [
+  ['Bankkonten','2','8','unbegrenzt'],
+  ['Rechtseinheiten','1','3','unbegrenzt'],
+  ['Nutzer (Seats)','3','10','25'],
+  ['Risikohorizont','30/60/90 Tage','+120 Tage, Szenarien','+ rollierende Planung'],
+  ['ERP-/Lageranbindung','–','Standard-Konnektoren','Custom-Schnittstelle'],
+  ['Mehrwährung','–','ja','ja, inkl. FX-Sicht'],
+  ['Sicherheit','MFA, AV-Vertrag','SSO/SAML, Audit-Log','Rollenkonzept, Zertifikatsnachweise'],
+  ['Support','E-Mail, 48 h','24 h','SLA 99,9 %, fester CSM']
+];
+
+let sector = SECTORS[0];
+let vals = {};
+
+function setSector(s, keep){
+  sector = s;
+  if(!keep) vals = Object.assign({}, s.pre);
+  document.getElementById('sectorNote').innerHTML = s.note;
+  document.querySelectorAll('.sec').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === s.id)));
+  render();
+}
+
+function pts(c, lvl){ return c.p ? c.p[lvl] : lvl; }
+
+function compute(){
+  let sum = 0, max = 0;
+  const rows = [];
+  CRIT.forEach(c => {
+    const w = sector.w[c.id], lvl = vals[c.id] ?? 0, p = pts(c, lvl);
+    sum += p * w; max += 3 * w;
+    rows.push({c, w, lvl, contrib: p * w, cap: 3 * w});
+  });
+  const score = Math.round(sum / max * 100);
+  let tier = score >= 65 ? 2 : score >= 35 ? 1 : 0;
+
+  const gates = [];
+  const v = vals;
+  const g = (t, txt) => gates.push({t, txt});
+  if(v.erp >= 3) g(2,'Legacy- oder Mehrsystem-ERP braucht eine Custom-Schnittstelle.');
+  else if(v.erp >= 2) g(1,'ERP- und Lageranbindung gibt es erst ab Business.');
+  if(v.inventar >= 3) g(1,'Lagerwert über 1 Mio. € – Bestandsmodul ab Business.');
+  if(v.standorte >= 3) g(2,'Mehr als 10 Standorte: Konsolidierung und Rechtekonzept nur im Enterprise.');
+  else if(v.standorte >= 2) g(1,'Ab 4 Standorten wird die Mehr-Entitäten-Sicht gebraucht.');
+  if(v.waehrung >= 3) g(2,'Aktive Kurssicherung erfordert die FX-Sicht im Enterprise.');
+  else if(v.waehrung >= 2) g(1,'Mehrwährungs-Forecast ist ab Business enthalten.');
+  if(v.sicherheit >= 3) g(2,'Zertifizierungsnachweis und Pen-Test sind Enterprise-Leistungen.');
+  else if(v.sicherheit >= 2) g(1,'SSO und Audit-Log sind ab Business enthalten.');
+  if(v.transaktionen >= 3) g(1,'Über 5.000 Vorgänge und mehr als 8 Konten sprengen das Starter-Limit.');
+
+  gates.forEach(x => { if(x.t > tier) tier = x.t; });
+  return {score, tier, rows, gates, byScore: score >= 65 ? 2 : score >= 35 ? 1 : 0};
+}
+
+const eur = n => n.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+const eur0 = n => n.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' €';
+
+function render(){
+  // form
+  const f = document.getElementById('form');
+  f.innerHTML = '';
+  const all = CRIT.concat([{id:'budget', name:BUDGET.name, hint:BUDGET.hint, o:BUDGET.o, d:BUDGET.d, budget:true}]);
+  all.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'crit';
+    const w = c.budget ? null : sector.w[c.id];
+    const lvl = vals[c.id] ?? 0;
+    row.innerHTML =
+      '<div class="crit-name"><span class="n">' + c.name +
+      (w ? '<span class="w">×' + w.toString().replace('.', ',') + '</span>' : '<span class="w">Check</span>') +
+      '</span><span class="h">' + c.hint + '</span></div>' +
+      '<div><div class="opts">' + c.o.map((t,i) =>
+        '<button class="opt" data-c="' + c.id + '" data-i="' + i + '" aria-pressed="' + (i===lvl) + '">' + t + '</button>'
+      ).join('') + '</div><div class="detail">' + c.d[lvl] + '</div></div>';
+    f.appendChild(row);
+  });
+  f.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    vals[b.dataset.c] = +b.dataset.i; render();
+  });
+
+  const r = compute();
+  const T = TIERS[r.tier];
+
+  // verdict
+  const top = document.getElementById('verdictTop');
+  top.style.setProperty('--tier', 'var(' + T.v + ')');
+  document.getElementById('tierName').textContent = T.name;
+  document.getElementById('tierPrice').textContent = eur(T.price);
+  document.getElementById('scoreVal').textContent = r.score;
+  document.getElementById('pin').style.left = r.score + '%';
+
+  // flags
+  const flags = [];
+  const uniq = [];
+  r.gates.forEach(x => { if(!uniq.includes(x.txt)) { uniq.push(x.txt); flags.push({k:'gate', ico:'→', t:'<b>' + TIERS[x.t].name + ' zwingend.</b> ' + x.txt}); } });
+
+  if(r.gates.length === 0){
+    flags.push({k:'gate', ico:'→', t:'<b>Score-getrieben.</b> Keine harte Anforderung – ' + r.score + ' von 100 Punkten führen zu ' + T.name + '.'});
+  } else if(r.byScore < r.tier){
+    flags.push({k:'gate', ico:'!', t:'Der Bedarfs-Score allein (' + r.score + ') läge bei <b>' + TIERS[r.byScore].name + '</b>. Das Paket wird von der Anforderung getragen, nicht von der Größe – so auch argumentieren.'});
+  }
+
+  // upsell proximity
+  if(r.tier < 2){
+    const nextEdge = r.tier === 0 ? 35 : 65;
+    const gap = nextEdge - r.score;
+    if(gap > 0 && gap <= 8){
+      const cand = r.rows.filter(x => x.contrib < x.cap).sort((a,b) => (b.cap - b.contrib) - (a.cap - a.contrib))[0];
+      flags.push({k:'warn', ico:'↑', t:'<b>' + gap + ' Punkte unter ' + TIERS[r.tier+1].name + '.</b> Größter offener Hebel: ' + cand.c.name + '. Im Gespräch gezielt nachfassen.'});
+    }
+  }
+
+  // budget
+  const bi = vals.budget ?? 0;
+  const cap = BUDGET.cap[bi];
+  if(cap === null){
+    flags.push({k:'warn', ico:'?', t:'<b>Budget nicht erhoben.</b> Vor dem Angebot klären – der häufigste späte Abbruchgrund.'});
+  } else if(cap < T.price){
+    flags.push({k:'crit', ico:'€', t:'<b>Budget deckt die Empfehlung nicht</b> (' + BUDGET.o[bi] + ' vs. ' + eur(T.price) + '). Zwei Wege: Jahresvorauszahlung, oder Bedarf über die harte Anforderung belegen.'});
+  } else if(cap > T.price){
+    flags.push({k:'gate', ico:'+', t:'<b>Budgetspielraum vorhanden</b> (' + BUDGET.o[bi] + '). Nutzen argumentieren statt Rabatt anbieten.'});
+  }
+
+  if((vals.ma ?? 0) === 4){
+    flags.push({k:'crit', ico:'⚑', t:'<b>Außerhalb des Zielkundenprofils.</b> Über 200 Mitarbeiter – laut Kontextpapier nicht die Kernzielgruppe. Freigabe einholen.'});
+  }
+  if(sector.id === 'gastro' && r.tier > 0){
+    flags.push({k:'warn', ico:'i', t:'<b>Preisrisiko Gastgewerbe.</b> Kein Auftragsbuch, niedrigere Zahlungsbereitschaft. Erwartete Abschlussquote hier niedriger ansetzen.'});
+  }
+
+  document.getElementById('flags').innerHTML = flags.map(x =>
+    '<div class="flag ' + x.k + '"><span class="ico">' + x.ico + '</span><span>' + x.t + '</span></div>').join('');
+
+  // econ
+  const db = T.price * 0.75;
+  const delta = T.price - 278.99;
+  document.getElementById('econ').innerHTML =
+    '<div><span class="k">MRR</span><span class="v mono">' + eur(T.price) + '</span><small>' +
+      (delta >= 0 ? '+' : '−') + eur0(Math.abs(delta)) + ' vs. ARPU</small></div>' +
+    '<div><span class="k">ARR (12 Mon.)</span><span class="v mono">' + eur0(T.price*12) + '</span><small>Listenpreis, netto</small></div>' +
+    '<div><span class="k">Deckungsbeitrag</span><span class="v mono">' + eur(db) + '</span><small>75 % Bruttomarge</small></div>' +
+    '<div><span class="k">Kontrahierter DB</span><span class="v mono">' + eur0(db*12) + '</span><small>12-Monats-Vertrag</small></div>';
+
+  // drivers
+  const sorted = r.rows.slice().sort((a,b) => b.contrib - a.contrib).slice(0,6);
+  document.getElementById('drivers').innerHTML = sorted.map(x =>
+    '<div class="driver"><span class="dn">' + x.c.name + '</span>' +
+    '<span class="dv">' + x.contrib.toString().replace('.', ',') + ' / ' + x.cap.toString().replace('.', ',') + '</span>' +
+    '<div class="track"><div class="fill' + (x.contrib/x.cap < .4 ? ' low' : '') + '" style="width:' + Math.round(x.contrib/x.cap*100) + '%"></div></div></div>').join('');
+
+  // comparison table
+  document.getElementById('cmp').innerHTML =
+    '<thead><tr><th></th>' + TIERS.map((t,i) =>
+      '<th class="' + (i===r.tier?'pick':'') + '">' + t.name + '</th>').join('') + '</tr></thead>' +
+    '<tbody><tr><td>Preis / Monat</td>' + TIERS.map((t,i) =>
+      '<td class="pr ' + (i===r.tier?'pick':'') + '">' + eur(t.price) + '</td>').join('') + '</tr>' +
+    FEATURES.map(row => '<tr><td>' + row[0] + '</td>' +
+      row.slice(1).map((cell,i) => '<td class="' + (i===r.tier?'pick':'') + '">' + cell + '</td>').join('') + '</tr>').join('') +
+    '</tbody>';
+
+  window.__summary = buildSummary(r, T);
+}
+
+function buildSummary(r, T){
+  const lines = [];
+  lines.push('LiquiBot Paket-Radar – ' + sector.name);
+  lines.push('Empfehlung: ' + T.name + ' · ' + eur(T.price) + '/Monat netto');
+  lines.push('Bedarfs-Score: ' + r.score + '/100 (Schwellen 35 / 65)');
+  lines.push('');
+  lines.push('Profil:');
+  CRIT.forEach(c => { const l = vals[c.id] ?? 0; lines.push('  ' + c.name + ': ' + c.o[l] + ' (' + pts(c,l) + ' × ' + sector.w[c.id] + ')'); });
+  lines.push('  Budget: ' + BUDGET.o[vals.budget ?? 0]);
+  lines.push('');
+  if(r.gates.length){
+    lines.push('Harte Anforderungen:');
+    const seen = [];
+    r.gates.forEach(x => { if(!seen.includes(x.txt)){ seen.push(x.txt); lines.push('  [' + TIERS[x.t].name + '] ' + x.txt); } });
+    lines.push('');
+  }
+  lines.push('Deal: ARR ' + eur0(T.price*12) + ' · DB/Monat ' + eur(T.price*0.75) + ' · kontrahierter DB ' + eur0(T.price*0.75*12));
+  return lines.join('\n');
+}
+
+// build sector chips
+const sc = document.getElementById('sectors');
+SECTORS.forEach(s => {
+  const b = document.createElement('button');
+  b.className = 'sec'; b.dataset.id = s.id; b.textContent = s.name;
+  b.setAttribute('aria-pressed', 'false');
+  b.onclick = () => setSector(s, false);
+  sc.appendChild(b);
+});
+
+document.getElementById('resetBtn').onclick = () => setSector(sector, false);
+document.getElementById('copyBtn').onclick = async () => {
+  const btn = document.getElementById('copyBtn');
+  try{ await navigator.clipboard.writeText(window.__summary); btn.textContent = 'Kopiert'; }
+  catch(e){ btn.textContent = 'Kopieren nicht möglich'; }
+  setTimeout(() => { btn.textContent = 'Zusammenfassung kopieren'; }, 1800);
+};
+
+setSector(SECTORS[0], false);
+</script>
+
+</body>
+</html>
